@@ -4,6 +4,7 @@
 	import ZapIcon from '@lucide/svelte/icons/zap';
 	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 	import DatabaseIcon from '@lucide/svelte/icons/database';
+    import ModeToggle from '$lib/components/mode-toggle.svelte';
 </script>
 
 <main class="min-h-screen flex flex-col justify-between bg-background text-foreground antialiased selection:bg-primary selection:text-primary-foreground">
@@ -18,6 +19,8 @@
 		<div class="flex items-center gap-2 text-xs font-mono text-muted-foreground">
 			<span class="inline-block size-2 rounded-full bg-emerald-500 animate-pulse"></span>
 			<span>DuckDB Engine Ready</span>
+
+<ModeToggle/>
 		</div>
 	</header>
 

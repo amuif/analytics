@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@duckdb/node-api": "^1.5.5-r.3",
-    "apache-arrow": "^21.2.0"
+    "apache-arrow": "^21.2.0",
+    "mode-watcher": "^1.1.0"
   }
 }
