@@ -10,6 +10,7 @@
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import PanelLeftIcon from '@lucide/svelte/icons/panel-left';
+	import { goto } from '$app/navigation';
 
 	interface Props {
 		onBackToHome?: () => void;
@@ -79,7 +80,7 @@
 		</div>
 
 		<!-- Center View Tabs (Data Grid vs Visualizations) -->
-		<div class="flex items-center p-1 rounded-lg border border-border bg-muted/40">
+		<div class="flex items-center p-1 rounded-lg border border-border bg-muted/40 shadow-2xs">
 			<button
 				type="button"
 				onclick={() => (activeTab = 'grid')}
@@ -88,14 +89,13 @@
 				<TableIcon class="size-3.5" />
 				<span>Data Grid</span>
 			</button>
-			<button
-				type="button"
-				onclick={() => (activeTab = 'chart')}
-				class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer {activeTab === 'chart' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
+			<a
+				href="/visualize"
+				class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer text-muted-foreground hover:text-foreground hover:bg-background/50"
 			>
-				<ChartColumnIcon class="size-3.5" />
-				<span>Visualizations</span>
-			</button>
+				<ChartColumnIcon class="size-3.5 text-indigo-500" />
+				<span>Visuals Studio ↗</span>
+			</a>
 		</div>
 
 		<!-- Right Controls -->
@@ -150,7 +150,7 @@
 					</div>
 
 					<!-- Segmented Control Tabs -->
-					<div class="flex items-center p-1 rounded-lg border border-border bg-card shadow-2xs">
+					<div class="flex items-center p-1 rounded-lg border border-border bg-card shadow-2xs gap-1">
 						<button
 							type="button"
 							onclick={() => (activeTab = 'grid')}
@@ -165,11 +165,15 @@
 							class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer {activeTab === 'chart' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-muted-foreground hover:text-foreground'}"
 						>
 							<ChartColumnIcon class="size-3.5" />
-							<span>Charts & Visualizations</span>
-							<span class="px-1.5 py-0.2 rounded text-[10px] font-bold {activeTab === 'chart' ? 'bg-white/20 text-white' : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'}">
-								5 Types
-							</span>
+							<span>Inline Charts</span>
 						</button>
+						<a
+							href="/visualize"
+							class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 border border-indigo-500/20 transition-all cursor-pointer shadow-2xs"
+							title="Open Visualizations in full-page Studio"
+						>
+							<span>Studio Page ↗</span>
+						</a>
 					</div>
 				</div>
 
@@ -178,7 +182,7 @@
 					{#if activeTab === 'grid'}
 						<DataGrid
 							result={duckdbService.queryResult}
-							onSwitchToChart={() => (activeTab = 'chart')}
+							onSwitchToChart={() => goto('/visualize')}
 						/>
 					{:else}
 						<ChartView

@@ -5,17 +5,19 @@
 	import ChartAreaIcon from '@lucide/svelte/icons/chart-area';
 	import ChartScatterIcon from '@lucide/svelte/icons/chart-scatter';
 	import ChartHistogramIcon from '@lucide/svelte/icons/chart-no-axes-column';
+	import ChartPieIcon from '@lucide/svelte/icons/chart-pie';
 	import DownloadIcon from '@lucide/svelte/icons/download';
 	import TableIcon from '@lucide/svelte/icons/table';
 
 	interface Props {
 		result: QueryResult | null;
 		onSwitchToGrid?: () => void;
+		isFullScreen?: boolean;
 	}
 
-	let { result, onSwitchToGrid }: Props = $props();
+	let { result, onSwitchToGrid, isFullScreen = false }: Props = $props();
 
-	type ChartType = 'bar' | 'line' | 'area' | 'scatter' | 'histogram';
+	type ChartType = 'bar' | 'line' | 'area' | 'scatter' | 'histogram' | 'pie';
 	type AggType = 'NONE' | 'SUM' | 'AVG' | 'COUNT' | 'MIN' | 'MAX';
 
 	let chartType = $state<ChartType>('bar');
@@ -92,6 +94,27 @@
 			});
 		}
 
+		if (chartType === 'pie') {
+			const groupMap = new Map<string, number>();
+			for (const r of result.rows) {
+				const key = String(r[xAxisCol] ?? 'null');
+				const val = yAxisCol && yAxisCol !== xAxisCol ? Number(r[yAxisCol]) : 1;
+				const numVal = isNaN(val) ? 1 : val;
+				const increment = (aggregation === 'COUNT' || (aggregation === 'NONE' && (!yAxisCol || yAxisCol === xAxisCol))) ? 1 : numVal;
+				groupMap.set(key, (groupMap.get(key) || 0) + increment);
+			}
+			const sorted = Array.from(groupMap.entries())
+				.map(([label, value]) => ({ label, value: Number(value.toFixed(2)) }))
+				.sort((a, b) => b.value - a.value);
+
+			if (sorted.length > 8) {
+				const top = sorted.slice(0, 7);
+				const otherSum = sorted.slice(7).reduce((acc, d) => acc + d.value, 0);
+				return [...top, { label: 'Other', value: Number(otherSum.toFixed(2)) }];
+			}
+			return sorted;
+		}
+
 		if (aggregation === 'NONE') {
 			// Direct row plotting (limit top 60 to prevent overplotting)
 			return result.rows.slice(0, 60).map((r, i) => {
@@ -143,11 +166,86 @@
 	});
 
 	// SVG layout bounds
-	const svgWidth = 800;
-	const svgHeight = 360;
+	let svgWidth = $derived(isFullScreen ? 960 : 800);
+	let svgHeight = $derived(isFullScreen ? 420 : 360);
 	const padding = { top: 30, right: 30, bottom: 65, left: 65 };
-	const chartAreaWidth = svgWidth - padding.left - padding.right;
-	const chartAreaHeight = svgHeight - padding.top - padding.bottom;
+	let chartAreaWidth = $derived(svgWidth - padding.left - padding.right);
+	let chartAreaHeight = $derived(svgHeight - padding.top - padding.bottom);
+
+	const sliceColors = [
+		'#6366f1',
+		'#3b82f6',
+		'#06b6d4',
+		'#10b981',
+		'#f59e0b',
+		'#ec4899',
+		'#8b5cf6',
+		'#f97316',
+		'#64748b'
+	];
+
+	interface PieSlice {
+		label: string;
+		value: number;
+		percentage: number;
+		path: string;
+		color: string;
+		startAngle: number;
+		endAngle: number;
+		midAngle: number;
+	}
+
+	let pieSlices = $derived.by<PieSlice[]>(() => {
+		if (chartType !== 'pie' || chartData.length === 0) return [];
+		const total = chartData.reduce((acc, d) => acc + Math.max(0, d.value), 0);
+		if (total === 0) return [];
+
+		const cx = svgWidth * 0.38;
+		const cy = svgHeight * 0.5;
+		const rOuter = Math.min(svgWidth, svgHeight) * 0.38;
+		const rInner = rOuter * 0.52;
+
+		let currentAngle = -Math.PI / 2;
+
+		return chartData.map((d, i) => {
+			const val = Math.max(0, d.value);
+			const angle = (val / total) * 2 * Math.PI;
+			const startAngle = currentAngle;
+			const endAngle = currentAngle + angle;
+			const midAngle = startAngle + angle / 2;
+			currentAngle = endAngle;
+
+			const x1Outer = cx + rOuter * Math.cos(startAngle);
+			const y1Outer = cy + rOuter * Math.sin(startAngle);
+			const x2Outer = cx + rOuter * Math.cos(endAngle);
+			const y2Outer = cy + rOuter * Math.sin(endAngle);
+
+			const x1Inner = cx + rInner * Math.cos(endAngle);
+			const y1Inner = cy + rInner * Math.sin(endAngle);
+			const x2Inner = cx + rInner * Math.cos(startAngle);
+			const y2Inner = cy + rInner * Math.sin(startAngle);
+
+			const largeArc = angle > Math.PI ? 1 : 0;
+
+			let path = '';
+			if (angle >= 2 * Math.PI - 0.001) {
+				path = `M ${cx} ${cy - rOuter} A ${rOuter} ${rOuter} 0 1 1 ${cx} ${cy + rOuter} A ${rOuter} ${rOuter} 0 1 1 ${cx} ${cy - rOuter} M ${cx} ${cy - rInner} A ${rInner} ${rInner} 0 1 0 ${cx} ${cy + rInner} A ${rInner} ${rInner} 0 1 0 ${cx} ${cy - rInner} Z`;
+			} else {
+				path = `M ${x1Outer} ${y1Outer} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2Outer} ${y2Outer} L ${x1Inner} ${y1Inner} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x2Inner} ${y2Inner} Z`;
+			}
+
+			return {
+				label: d.label,
+				value: d.value,
+				percentage: Number(((val / total) * 100).toFixed(1)),
+				path,
+				color: sliceColors[i % sliceColors.length],
+				startAngle,
+				endAngle,
+				midAngle
+			};
+		});
+	});
 
 	let maxVal = $derived(
 		chartData.length > 0 ? Math.max(1, ...chartData.map((d) => d.value)) : 1
@@ -265,6 +363,15 @@
 				<ChartHistogramIcon class="size-3.5" />
 				<span>Histogram</span>
 			</button>
+			<button
+				type="button"
+				onclick={() => (chartType = 'pie')}
+				class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-colors {chartType === 'pie' ? 'bg-primary text-primary-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'} cursor-pointer"
+				title="Donut / Pie Chart"
+			>
+				<ChartPieIcon class="size-3.5" />
+				<span>Donut</span>
+			</button>
 		</div>
 
 		<!-- Axis & Aggregation Pickers -->
@@ -355,29 +462,100 @@
 					viewBox="0 0 {svgWidth} {svgHeight}"
 					class="w-full h-auto overflow-visible select-none"
 				>
-					<!-- Horizontal Grid Lines & Y-Ticks -->
-					{#each [0, 0.25, 0.5, 0.75, 1] as tick}
-						{@const tickVal = minVal + (maxVal - minVal) * (1 - tick)}
-						{@const yPos = padding.top + chartAreaHeight * tick}
-						<g class="transition-all duration-200">
-							<line
-								x1={padding.left}
-								y1={yPos}
-								x2={svgWidth - padding.right}
-								y2={yPos}
-								class="stroke-border/50"
-								stroke-dasharray="3 3"
-							/>
-							<text
-								x={padding.left - 8}
-								y={yPos + 3.5}
-								text-anchor="end"
-								class="text-[10px] fill-muted-foreground font-mono"
-							>
-								{tickVal.toFixed(tickVal >= 100 ? 0 : 1)}
-							</text>
+					<!-- Horizontal Grid Lines & Y-Ticks (Cartesian charts only) -->
+					{#if chartType !== 'pie'}
+						{#each [0, 0.25, 0.5, 0.75, 1] as tick}
+							{@const tickVal = minVal + (maxVal - minVal) * (1 - tick)}
+							{@const yPos = padding.top + chartAreaHeight * tick}
+							<g class="transition-all duration-200">
+								<line
+									x1={padding.left}
+									y1={yPos}
+									x2={svgWidth - padding.right}
+									y2={yPos}
+									class="stroke-border/50"
+									stroke-dasharray="3 3"
+								/>
+								<text
+									x={padding.left - 8}
+									y={yPos + 3.5}
+									text-anchor="end"
+									class="text-[10px] fill-muted-foreground font-mono"
+								>
+									{tickVal.toFixed(tickVal >= 100 ? 0 : 1)}
+								</text>
+							</g>
+						{/each}
+					{/if}
+
+					<!-- Donut / Pie Chart Slices -->
+					{#if chartType === 'pie'}
+						{@const cx = svgWidth * 0.38}
+						{@const cy = svgHeight * 0.5}
+						<!-- Slices -->
+						<g>
+							{#each pieSlices as slice}
+								<path
+									role="img"
+									aria-label="{slice.label}: {slice.value} ({slice.percentage}%)"
+									d={slice.path}
+									fill={slice.color}
+									class="hover:opacity-85 transition-opacity cursor-pointer stroke-card stroke-2"
+									onmouseenter={() => (hoveredPoint = { x: cx, y: cy, label: `${slice.label} (${slice.percentage}%)`, value: slice.value })}
+									onmouseleave={() => (hoveredPoint = null)}
+								/>
+							{/each}
 						</g>
-					{/each}
+
+						<!-- Center Donut Cutout Label -->
+						<text
+							x={cx}
+							y={cy - 6}
+							text-anchor="middle"
+							class="text-xl font-bold fill-foreground font-mono"
+						>
+							{summaryStats ? summaryStats.count : 0}
+						</text>
+						<text
+							x={cx}
+							y={cy + 14}
+							text-anchor="middle"
+							class="text-[10px] font-semibold uppercase tracking-wider fill-muted-foreground font-mono"
+						>
+							Segments
+						</text>
+
+						<!-- Right Legend for Pie Chart -->
+						<g transform="translate({svgWidth * 0.68}, {Math.max(25, cy - (pieSlices.length * 24) / 2)})">
+							{#each pieSlices as slice, i}
+								<g transform="translate(0, {i * 24})" class="select-none cursor-pointer">
+									<rect
+										x={0}
+										y={0}
+										width={12}
+										height={12}
+										rx={3}
+										fill={slice.color}
+									/>
+									<text
+										x={18}
+										y={10}
+										class="text-xs font-mono fill-foreground truncate"
+									>
+										{slice.label.length > 14 ? slice.label.substring(0, 14) + '…' : slice.label}
+									</text>
+									<text
+										x={130}
+										y={10}
+										text-anchor="end"
+										class="text-xs font-mono font-semibold fill-muted-foreground"
+									>
+										{slice.percentage}%
+									</text>
+								</g>
+							{/each}
+						</g>
+					{/if}
 
 					<!-- Area Fill (if Area Chart) -->
 					{#if chartType === 'area'}
@@ -447,22 +625,24 @@
 						{/each}
 					{/if}
 
-					<!-- X-Axis Labels (sample every N labels to avoid overlapping) -->
-					{#each chartData as d, i}
-						{#if i % labelStep === 0}
-							{@const xPos = chartType === 'bar' || chartType === 'histogram'
-								? padding.left + i * (chartAreaWidth / chartData.length) + (chartAreaWidth / chartData.length) / 2
-								: getX(i)}
-							<text
-								x={xPos}
-								y={svgHeight - padding.bottom + 18}
-								text-anchor="middle"
-								class="text-[9px] fill-muted-foreground font-mono truncate"
-							>
-								{d.label.length > 8 ? d.label.substring(0, 8) + '…' : d.label}
-							</text>
-						{/if}
-					{/each}
+					<!-- X-Axis Labels (sample every N labels to avoid overlapping, Cartesian only) -->
+					{#if chartType !== 'pie'}
+						{#each chartData as d, i}
+							{#if i % labelStep === 0}
+								{@const xPos = chartType === 'bar' || chartType === 'histogram'
+									? padding.left + i * (chartAreaWidth / chartData.length) + (chartAreaWidth / chartData.length) / 2
+									: getX(i)}
+								<text
+									x={xPos}
+									y={svgHeight - padding.bottom + 18}
+									text-anchor="middle"
+									class="text-[9px] fill-muted-foreground font-mono truncate"
+								>
+									{d.label.length > 8 ? d.label.substring(0, 8) + '…' : d.label}
+								</text>
+							{/if}
+						{/each}
+					{/if}
 				</svg>
 
 				<!-- Hover Tooltip -->
