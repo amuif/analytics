@@ -36,7 +36,7 @@
     "vite": "^8.0.16"
   },
   "dependencies": {
-    "@duckdb/node-api": "^1.5.5-r.3",
+    "@duckdb/duckdb-wasm": "^1.33.1-dev57.0",
     "apache-arrow": "^21.2.0",
     "mode-watcher": "^1.1.0"
   }

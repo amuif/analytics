@@ -10,6 +10,7 @@
 	import AlertCircleIcon from '@lucide/svelte/icons/circle-alert';
 	import XIcon from '@lucide/svelte/icons/x';
 	import { displaySize } from '$lib/components/ui/file-drop-zone';
+	import { Spinner } from '$lib/components/ui/spinner';
 
 	import { classifyFile, type FileClassificationResponse } from '$lib/services/api';
 
@@ -24,10 +25,8 @@
 
 	let {
 		onUpload,
-		onClassifyingStart,
-		onClassified,
-		accept = '.csv,.parquet,.json,.arrow,.sqlite,.tsv,.txt,.log,.xls', 
-		maxFileSize = 50 * 1024 * 1024, // 50MB
+		accept = '.csv,.parquet,.json,.arrow,.sqlite,.tsv,.txt,xlsx,xls',
+		maxFileSize = 500 * 1024 * 1024, // 500MB
 		maxFiles = 10
 	}: Props = $props();
 
@@ -98,17 +97,30 @@
 			<div
 				class="flex items-center justify-center size-16 sm:size-20 rounded-2xl bg-secondary/80 text-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shadow-xs mb-5 group-hover:scale-105"
 			>
-				<UploadIcon class="size-8 sm:size-9 stroke-[1.75]" />
+				{#if isUploading}
+					<Spinner class="size-8 sm:size-9" />
+				{:else}
+					<UploadIcon class="size-8 sm:size-9 stroke-[1.75]" />
+				{/if}
 			</div>
 
 			<!-- Main instructions -->
 			<div class="flex flex-col items-center text-center space-y-1.5 max-w-md">
-				<p class="text-base sm:text-lg font-semibold text-foreground tracking-tight">
-					<span class="text-primary underline underline-offset-4 decoration-primary/40 group-hover:decoration-primary">Click to browse</span> or drag & drop files here
-				</p>
-				<p class="text-xs sm:text-sm text-muted-foreground">
-					Paste anywhere or drop datasets directly from your filesystem
-				</p>
+				{#if isUploading}
+					<p class="text-base sm:text-lg font-semibold text-primary tracking-tight animate-pulse">
+						Registering dataset with DuckDB-Wasm...
+					</p>
+					<p class="text-xs sm:text-sm text-muted-foreground">
+						Parsing schema and creating in-memory table
+					</p>
+				{:else}
+					<p class="text-base sm:text-lg font-semibold text-foreground tracking-tight">
+						<span class="text-primary underline underline-offset-4 decoration-primary/40 group-hover:decoration-primary">Click to browse</span> or drag & drop files here
+					</p>
+					<p class="text-xs sm:text-sm text-muted-foreground">
+						Paste anywhere or drop datasets directly from your filesystem
+					</p>
+				{/if}
 			</div>
 
 			<!-- Formats badges -->
