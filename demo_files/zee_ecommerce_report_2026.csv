@@ -1,0 +1,26 @@
+order_id,sku,product_category,product_name,quantity,unit_price_usd,total_revenue_usd,warehouse_region,fulfillment_status,order_date
+ORD-7001,SKU-ELEC-01,Electronics,Wireless Noise-Canceling Headphones,12,89.99,1079.88,North America,Delivered,2026-09-01
+ORD-7002,SKU-APP-12,Apparel,Merino Wool Winter Jacket,8,145.00,1160.00,Europe,Delivered,2026-09-01
+ORD-7003,SKU-HOME-44,Home & Kitchen,Smart Espresso Maker,4,280.00,1120.00,North America,Shipped,2026-09-02
+ORD-7004,SKU-BEAU-09,Beauty & Personal Care,Revitalizing Skin Serum Set,25,34.50,862.50,Asia-Pacific,Delivered,2026-09-02
+ORD-7005,SKU-ELEC-05,Electronics,4K Ultra-Wide Gaming Monitor,5,320.00,1600.00,North America,Delivered,2026-09-03
+ORD-7006,SKU-ACC-31,Accessories,Full-Grain Leather Laptop Bag,15,65.00,975.00,Europe,Shipped,2026-09-03
+ORD-7007,SKU-APP-15,Apparel,Breathable Running Shoes,18,78.50,1413.00,North America,Delivered,2026-09-04
+ORD-7008,SKU-HOME-10,Home & Kitchen,Robotic Vacuum Cleaner,6,220.00,1320.00,Europe,Delivered,2026-09-04
+ORD-7009,SKU-ELEC-08,Electronics,Mechanical Ergonomic Keyboard,22,55.00,1210.00,Asia-Pacific,Delivered,2026-09-05
+ORD-7010,SKU-BEAU-14,Beauty & Personal Care,Sonic Electric Toothbrush,14,48.00,672.00,North America,Shipped,2026-09-05
+ORD-7011,SKU-ACC-22,Accessories,UV Polarized Sunglasses,30,28.00,840.00,Europe,Delivered,2026-09-06
+ORD-7012,SKU-APP-04,Apparel,Classic Cotton Polo Shirt,35,24.00,840.00,North America,Delivered,2026-09-06
+ORD-7013,SKU-HOME-50,Home & Kitchen,Air Purifier HEPA Filter,9,160.00,1440.00,Asia-Pacific,Shipped,2026-09-07
+ORD-7014,SKU-ELEC-03,Electronics,Portable Bluetooth Speaker,28,42.00,1176.00,North America,Delivered,2026-09-07
+ORD-7015,SKU-BEAU-02,Beauty & Personal Care,Organic Hydrating Moisturizer,40,19.50,780.00,Europe,Delivered,2026-09-08
+ORD-7016,SKU-ACC-88,Accessories,Magnetic Wireless Power Bank,20,38.00,760.00,North America,Processing,2026-09-08
+ORD-7017,SKU-ELEC-19,Electronics,True Wireless ANC Earbuds,16,75.00,1200.00,Europe,Delivered,2026-09-09
+ORD-7018,SKU-HOME-23,Home & Kitchen,Cast Iron Dutch Oven,7,110.00,770.00,North America,Delivered,2026-09-09
+ORD-7019,SKU-APP-81,Apparel,Thermal Fleece Baselayer,24,32.00,768.00,Asia-Pacific,Shipped,2026-09-10
+ORD-7020,SKU-ELEC-21,Electronics,USB-C Multi-Port Hub,32,29.99,959.68,North America,Delivered,2026-09-10
+ORD-7021,SKU-BEAU-18,Beauty & Personal Care,Professional Hair Dryer,11,92.00,1012.00,Europe,Delivered,2026-09-11
+ORD-7022,SKU-ACC-09,Accessories,RFID-Blocking Slim Wallet,45,18.00,810.00,North America,Delivered,2026-09-11
+ORD-7023,SKU-HOME-33,Home & Kitchen,Stainless Steel Cookware Set,5,249.00,1245.00,North America,Processing,2026-09-12
+ORD-7024,SKU-APP-40,Apparel,Waterproof Hiking Pants,14,68.00,952.00,Europe,Delivered,2026-09-12
+ORD-7025,SKU-ELEC-30,Electronics,Smart Wi-Fi Security Camera,19,49.00,931.00,Asia-Pacific,Delivered,2026-09-13

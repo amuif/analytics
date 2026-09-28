@@ -1,0 +1,18 @@
+STRICTLY CONFIDENTIAL - INTERNAL HR RECORD
+Employee Name: Marcus Thorne (Employee ID: HR-8812)
+Department: Platform Engineering
+Role: Lead Systems Architect
+Evaluation Cycle: Annual Performance & Compensation Review 2026
+Manager: Sarah Jenkins (VP Engineering)
+
+Summary Feedback:
+Marcus has demonstrated exceptional technical leadership over the last four quarters, spearheading the migration to high-performance microservices. Team sentiment is overwhelmingly positive.
+
+Compensation Adjustment Proposal:
+- Current Base Salary: $185,000
+- Recommended Revision: $210,000 (13.5% merit increase)
+- Equity Grant: 15,000 RSUs vesting over 36 months
+- Target Promotion: Principal Staff Engineer
+
+Action Required:
+Requires compensation committee sign-off and final approval from People Operations prior to October 15.

@@ -1,0 +1,6 @@
+order_id,customer_name,email_address,shipping_state,item_count,total_amount_usd,payment_method,fulfillment_status
+ORD-1001,Jonathan Reed,jreed@example.com,California,3,249.99,CreditCard,shipped
+ORD-1002,Amina Diallo,amina.d@example.net,Texas,1,89.50,PayPal,delivered
+ORD-1003,Liam Chen,l.chen@sample.org,Washington,5,620.00,CreditCard,processing
+ORD-1004,Elena Rostova,erostova@example.com,NewYork,2,145.00,ApplePay,delivered
+ORD-1005,Devon Brooks,dbrooks@sample.net,Colorado,4,410.75,CreditCard,shipped

@@ -1,0 +1,13 @@
+[
+  {
+    "ticket_id": "HD-99214",
+    "customer_name": "Eleanor Vance",
+    "customer_email": "eleanor.vance@example.com",
+    "account_tier": "enterprise",
+    "subject": "Critical: Double billed for September and credit card charge dispute",
+    "priority": "P1-URGENT",
+    "issue_description": "Our enterprise billing account was debited $12,450 twice this morning without authorization. This has exhausted our company expense limit. We demand an immediate cancellation and reversal of the second transaction before end of day.",
+    "assigned_agent": null,
+    "status": "escalated"
+  }
+]

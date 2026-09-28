@@ -1,0 +1,56 @@
+{
+  "version": "1.0.0",
+  "description": "Ground truth classification expectations for demo datasets",
+  "files": [
+    {
+      "filename": "financial_statement_2026.csv",
+      "expected": {
+        "domain": "financial",
+        "sensitivity": "restricted_financial",
+        "data_structure": "tabular_structured",
+        "action_priority": "routine"
+      },
+      "min_confidence": 0.50
+    },
+    {
+      "filename": "customer_dispute_ticket.json",
+      "expected": {
+        "domain": "customer_support",
+        "sensitivity": "restricted_financial",
+        "data_structure": "semi_structured_json",
+        "action_priority": "urgent"
+      },
+      "min_confidence": 0.45
+    },
+    {
+      "filename": "server_syslog_auth_failure.log",
+      "expected": {
+        "domain": "technical_logs",
+        "sensitivity": "internal",
+        "data_structure": "unstructured_prose",
+        "action_priority": "urgent"
+      },
+      "min_confidence": 0.50
+    },
+    {
+      "filename": "employee_review_notes.txt",
+      "expected": {
+        "domain": "hr_operations",
+        "sensitivity": "internal",
+        "data_structure": "unstructured_prose",
+        "action_priority": "needs_review"
+      },
+      "min_confidence": 0.40
+    },
+    {
+      "filename": "sales_order_summary.csv",
+      "expected": {
+        "domain": "financial",
+        "sensitivity": "public",
+        "data_structure": "tabular_structured",
+        "action_priority": "routine"
+      },
+      "min_confidence": 0.35
+    }
+  ]
+}

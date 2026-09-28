@@ -11,8 +11,12 @@
 	import XIcon from '@lucide/svelte/icons/x';
 	import { displaySize } from '$lib/components/ui/file-drop-zone';
 
+	import { classifyFile, type FileClassificationResponse } from '$lib/services/api';
+
 	interface Props {
 		onUpload?: (files: File[]) => Promise<void> | void;
+		onClassifyingStart?: (file: File) => void;
+		onClassified?: (result: FileClassificationResponse) => void;
 		accept?: string;
 		maxFileSize?: number;
 		maxFiles?: number;
@@ -20,8 +24,10 @@
 
 	let {
 		onUpload,
-		accept = '.csv,.parquet,.json,.arrow,.sqlite,.tsv,.txt',
-		maxFileSize = 500 * 1024 * 1024, // 500MB
+		onClassifyingStart,
+		onClassified,
+		accept = '.csv,.parquet,.json,.arrow,.sqlite,.tsv,.txt,.log,.xls', 
+		maxFileSize = 50 * 1024 * 1024, // 50MB
 		maxFiles = 10
 	}: Props = $props();
 
@@ -36,6 +42,17 @@
 			uploadedFiles = [...uploadedFiles, ...files];
 			if (onUpload) {
 				await onUpload(files);
+			}
+			// Automatically classify the newly uploaded file(s)
+			if (files.length > 0) {
+				const targetFile = files[files.length - 1];
+				if (onClassifyingStart) {
+					onClassifyingStart(targetFile);
+				}
+				if (onClassified) {
+					const res = await classifyFile(targetFile);
+					onClassified(res);
+				}
 			}
 		} catch (err) {
 			errorMessage = err instanceof Error ? err.message : 'Failed to process uploaded file(s).';
