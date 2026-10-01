@@ -13,7 +13,7 @@ export interface ColumnProfile {
   categories?: { label: string; count: number }[];
 }
 
-export type BusinessDomain = 'hr' | 'sales' | 'ecommerce' | 'support' | 'general';
+export type BusinessDomain = 'inventory' | 'ecommerce' | 'hr' | 'sales' | 'support' | 'general';
 
 export interface DecisionPreset {
   id: string;

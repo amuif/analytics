@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { stressMonitor } from '../lib/stress-monitor';
   import type { StressTelemetry } from '../types';
-  import { Activity, Cpu, HardDrive, Zap, ShieldCheck } from '@lucide/svelte';
+  import { Activity, Cpu, HardDrive, Zap,  } from '@lucide/svelte';
 
   let { processedRows = 0, totalRows = 0, renderLatencyMs = 0 } = $props<{
     processedRows?: number;
@@ -54,8 +54,8 @@
     </div>
     <div class="hidden sm:block h-3 w-[1px] bg-[#e6e6e6] dark:bg-[#2c2c2c]"></div>
     <div class="flex items-center gap-1.5 text-neutral-700 dark:text-neutral-300 font-sans text-xs">
-      <ShieldCheck class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-      <span class="text-[11px] sm:text-xs">Air-Gapped (0 Network Calls)</span>
+      <!-- <ShieldCheck class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 shrink-0" /> -->
+      <!-- <span class="text-[11px] sm:text-xs">Air-Gapped (0 Network Calls)</span> -->
     </div>
   </div>
 

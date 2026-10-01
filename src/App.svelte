@@ -6,12 +6,12 @@
   import { themeManager } from './lib/theme.svelte';
   import type { DatasetSummary, ChartDefinition } from './types';
   import type { ParseResult } from './lib/parser';
-  import { Layers, ShieldCheck, Monitor, Sun, Moon } from '@lucide/svelte';
+  import { Layers,  Monitor, Sun, Moon } from '@lucide/svelte';
 
   let currentSummary = $state<DatasetSummary | null>(null);
   let currentRows = $state<Record<string, any>[]>([]);
   let currentCharts = $state<ChartDefinition[]>([]);
-  let isRestoring = $state(true);
+  // let isRestoring = $state(true);
 
   onMount(async () => {
     try {
@@ -23,9 +23,10 @@
       }
     } catch (e) {
       console.warn('Could not restore last dataset from IndexedDB:', e);
-    } finally {
-      isRestoring = false;
-    }
+    } 
+    // finally {
+    //   isRestoring = false;
+    // }
   });
 
   function handleDataParsed(result: ParseResult) {
@@ -60,10 +61,10 @@
 
       <!-- Header Badges and Theme Switcher (Pills) -->
       <div class="flex items-center gap-2 sm:gap-3">
-        <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#dceeb1] dark:bg-[#283518] text-black dark:text-[#dceeb1] text-xs font-mono font-medium border dark:border-[#405524]">
+        <!-- <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#dceeb1] dark:bg-[#283518] text-black dark:text-[#dceeb1] text-xs font-mono font-medium border dark:border-[#405524]">
           <ShieldCheck class="w-3.5 h-3.5 text-black dark:text-[#dceeb1]" />
           <span>Air-Gapped Client</span>
-        </div>
+        </div> -->
 
         <div class="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white dark:bg-[#181818] border border-black dark:border-[#333333] text-black dark:text-white text-xs font-mono font-medium">
           <Monitor class="w-3.5 h-3.5" />
@@ -91,12 +92,8 @@
 
   <!-- Main View Area -->
   <div class="flex-1 flex flex-col">
-    {#if isRestoring}
-      <div class="flex-1 flex flex-col items-center justify-center p-8 sm:p-12">
-        <div class="w-8 h-8 rounded-full border-2 border-black dark:border-white border-t-transparent animate-spin mb-4"></div>
-        <p class="text-xs font-mono text-neutral-500 dark:text-neutral-400">Restoring client database & decision head...</p>
-      </div>
-    {:else if currentSummary && currentRows.length > 0}
+
+    {#if currentSummary && currentRows.length > 0}
       <ResultsDashboard
         summary={currentSummary}
         rows={currentRows}
