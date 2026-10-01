@@ -154,6 +154,17 @@ function profileColumns(headers: string[], rows: Record<string, any>[]): ColumnP
   });
 }
 
+function formatCompactNumber(num: number): string {
+  const abs = Math.abs(num);
+  if (abs >= 1_000_000) {
+    return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+  if (abs >= 1_000) {
+    return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+  }
+  return Number.isInteger(num) ? num.toString() : num.toFixed(1);
+}
+
 function generateSmartCharts(columns: ColumnProfile[], rows: Record<string, any>[]): ChartDefinition[] {
   const charts: ChartDefinition[] = [];
 
@@ -173,7 +184,7 @@ function generateSmartCharts(columns: ColumnProfile[], rows: Record<string, any>
     for (let i = 0; i < bins; i++) {
       const start = min + i * binSize;
       const end = start + binSize;
-      binLabels.push(`${Math.round(start).toLocaleString()} - ${Math.round(end).toLocaleString()}`);
+      binLabels.push(`${formatCompactNumber(start)} – ${formatCompactNumber(end)}`);
     }
 
     for (const row of rows) {
@@ -227,8 +238,15 @@ function generateSmartCharts(columns: ColumnProfile[], rows: Record<string, any>
     });
   }
 
-  // 2. Bar Chart for primary categorical column
-  const catCols = columns.filter(c => c.type === 'categorical' && c.categories && c.categories.length >= 2);
+  // 2. Categorical columns sorted to prefer high-level categories (3-10 distinct values)
+  const catCols = columns
+    .filter(c => c.type === 'categorical' && c.categories && c.categories.length >= 2)
+    .sort((a, b) => {
+      const scoreA = a.uniqueCount >= 3 && a.uniqueCount <= 8 ? 0 : a.uniqueCount;
+      const scoreB = b.uniqueCount >= 3 && b.uniqueCount <= 8 ? 0 : b.uniqueCount;
+      return scoreA - scoreB;
+    });
+
   if (catCols.length > 0) {
     const primaryCat = catCols[0];
     const topCat = primaryCat.categories![0];
@@ -236,20 +254,33 @@ function generateSmartCharts(columns: ColumnProfile[], rows: Record<string, any>
     const top3Count = primaryCat.categories!.slice(0, 3).reduce((acc, c) => acc + c.count, 0);
     const top3Share = Math.round((top3Count / Math.max(1, rows.length)) * 100);
 
+    // Limit to Top 7 categories + consolidated 'Other' bucket to prevent X-axis overcrowding
+    const maxBarItems = 7;
+    const topItems = primaryCat.categories!.slice(0, maxBarItems);
+    const barChartData = topItems.map(c => ({ category: c.label, count: c.count }));
+
+    if (primaryCat.categories!.length > maxBarItems) {
+      const remainingCount = primaryCat.categories!.slice(maxBarItems).reduce((acc, c) => acc + c.count, 0);
+      barChartData.push({
+        category: `Other (${primaryCat.categories!.length - maxBarItems} more)`,
+        count: remainingCount,
+      });
+    }
+
     charts.push({
       id: `bar_${primaryCat.name}`,
       title: `${primaryCat.name} Breakdown`,
       type: 'bar',
-      description: `Ranked volume of categories in ${primaryCat.name}.`,
+      description: `Ranked volume of top groups in ${primaryCat.name}.`,
       xKey: 'Category',
       yKey: 'Count',
-      data: primaryCat.categories!.map(c => ({ category: c.label, count: c.count })),
+      data: barChartData,
       insights: {
-        methodology: `Ranked frequency of categorical values in column "${primaryCat.name}", aggregating ${primaryCat.uniqueCount} distinct groups.`,
+        methodology: `Ranked frequency for "${primaryCat.name}", displaying top ${Math.min(maxBarItems, primaryCat.uniqueCount)} of ${primaryCat.uniqueCount} distinct groups.`,
         keyFindings: [
-          `Leading category: "${topCat.label}" accounts for ${topCat.count.toLocaleString()} occurrences (${topShare}% of all records).`,
-          `Concentration index: The top ${Math.min(3, primaryCat.categories!.length)} categories represent ${top3Share}% of total volume.`,
-          `Distribution diversity: ${primaryCat.uniqueCount} total unique categories detected across ${rows.length.toLocaleString()} rows.`
+          `Leading segment: "${topCat.label}" accounts for ${topCat.count.toLocaleString()} entries (${topShare}% volume).`,
+          `Top 3 concentration: The top 3 categories represent ${top3Share}% of total records.`,
+          `Catalog breadth: ${primaryCat.uniqueCount} total unique groups detected across ${rows.length.toLocaleString()} records.`
         ],
         metricSummary: [
           { label: 'Unique Groups', value: String(primaryCat.uniqueCount) },
@@ -267,24 +298,37 @@ function generateSmartCharts(columns: ColumnProfile[], rows: Record<string, any>
     const topSlice = secondaryCat.categories![0];
     const topSliceShare = Math.round((topSlice.count / Math.max(1, rows.length)) * 100);
 
+    // Limit pie chart to Top 5 slices + Other to keep legends and segments pristine
+    const maxPieItems = 5;
+    const topPieItems = secondaryCat.categories!.slice(0, maxPieItems);
+    const pieChartData = topPieItems.map(c => ({ name: c.label, value: c.count }));
+
+    if (secondaryCat.categories!.length > maxPieItems) {
+      const remainingPie = secondaryCat.categories!.slice(maxPieItems).reduce((acc, c) => acc + c.count, 0);
+      pieChartData.push({
+        name: `Other (${secondaryCat.categories!.length - maxPieItems} more)`,
+        value: remainingPie,
+      });
+    }
+
     charts.push({
       id: `pie_${secondaryCat.name}`,
       title: `${secondaryCat.name} Proportion`,
       type: 'pie',
-      description: `Proportional market share of categories in ${secondaryCat.name}.`,
+      description: `Market share distribution across ${secondaryCat.name}.`,
       xKey: 'Category',
       yKey: 'Value',
-      data: secondaryCat.categories!.slice(0, 8).map(c => ({ name: c.label, value: c.count })),
+      data: pieChartData,
       insights: {
-        methodology: `Relative proportions partitioned across unique values in column "${secondaryCat.name}".`,
+        methodology: `Proportional partition across values in "${secondaryCat.name}".`,
         keyFindings: [
           `Primary segment: "${topSlice.label}" constitutes ${topSliceShare}% of the segmented population.`,
-          `Segmentation depth: Top ${Math.min(8, secondaryCat.categories!.length)} categories visualized on canvas.`
+          `Segmentation depth: Top ${Math.min(maxPieItems, secondaryCat.categories!.length)} key segments visualized.`
         ],
         metricSummary: [
           { label: 'Primary Segment', value: topSlice.label },
           { label: 'Segment Share', value: `${topSliceShare}%` },
-          { label: 'Slices Rendered', value: String(Math.min(8, secondaryCat.categories!.length)) }
+          { label: 'Slices Rendered', value: String(pieChartData.length) }
         ]
       }
     });

@@ -11,6 +11,8 @@
   let chartInstance: echarts.ECharts | null = null;
   let resizeObserver: ResizeObserver | null = null;
   let showDetails = $state(true); // Default open to keep user informed as requested!
+  let barOrientation = $state<'horizontal' | 'vertical'>('horizontal'); // Default horizontal to solve wide category crowding
+  let pieLegendPosition = $state<'top' | 'bottom'>('top'); // Default top legend with pie pushed down
 
   onMount(() => {
     if (!chartContainer) return;
@@ -32,9 +34,13 @@
     chartInstance?.dispose();
   });
 
-  // Watch both chart data and themeManager.current
+  // Watch chart data, theme, and user orientation/legend preferences
   $effect(() => {
-    if (chart && chartInstance && themeManager.current) {
+    const _t = themeManager.current;
+    const _bo = barOrientation;
+    const _plp = pieLegendPosition;
+    const _c = chart;
+    if (chart && chartInstance) {
       updateChartOptions();
     }
   });
@@ -80,12 +86,24 @@
 
       options = {
         ...options,
+        grid: {
+          left: '3%',
+          right: '3%',
+          bottom: xData.length > 5 ? '16%' : '10%',
+          top: '12%',
+          containLabel: true,
+        },
         xAxis: {
           type: 'category',
           data: xData,
           axisLine: { lineStyle: { color: axisLineColor, width: 1.5 } },
           axisTick: { show: false },
-          axisLabel: { color: axisLabelColor, fontSize: 10, rotate: xData.length > 5 ? 25 : 0 },
+          axisLabel: {
+            color: axisLabelColor,
+            fontSize: 10,
+            interval: 0,
+            rotate: xData.length > 5 ? 25 : 0,
+          },
         },
         yAxis: {
           type: 'value',
@@ -108,55 +126,150 @@
         ],
       };
     } else if (chart.type === 'bar') {
-      const xData = chart.data.map(d => d.category);
-      const yData = chart.data.map(d => d.count);
+      const categories = chart.data.map(d => d.category);
+      const counts = chart.data.map(d => d.count);
+
+      if (barOrientation === 'horizontal') {
+        // Horizontal Bar Chart: perfectly handles wide category names and labels
+        options = {
+          ...options,
+          grid: {
+            left: '3%',
+            right: '8%',
+            bottom: '4%',
+            top: '4%',
+            containLabel: true,
+          },
+          xAxis: {
+            type: 'value',
+            splitLine: { lineStyle: { color: splitLineColor } },
+            axisLabel: { color: axisLabelColor, fontSize: 10 },
+            axisLine: { show: false },
+          },
+          yAxis: {
+            type: 'category',
+            data: categories,
+            inverse: true, // Rank #1 highest group on top
+            axisLine: { lineStyle: { color: axisLineColor, width: 1.5 } },
+            axisTick: { show: false },
+            axisLabel: {
+              color: axisLabelColor,
+              fontSize: 11,
+              width: 105,
+              overflow: 'truncate',
+              ellipsis: '...',
+              formatter: (val: string) => (val.length > 15 ? val.slice(0, 14) + '…' : val),
+            },
+          },
+          series: [
+            {
+              name: 'Total',
+              type: 'bar',
+              data: counts,
+              barMaxWidth: 20,
+              itemStyle: {
+                color: '#dceeb1', // Figma Lime
+                borderColor: isDark ? '#ffffff' : '#000000',
+                borderWidth: 1.5,
+                borderRadius: [0, 6, 6, 0],
+              },
+              label: {
+                show: true,
+                position: 'right',
+                color: axisLabelColor,
+                fontSize: 10,
+                fontFamily: 'monospace',
+                formatter: '{c}',
+              },
+            },
+          ],
+        };
+      } else {
+        // Vertical Bar Chart option
+        options = {
+          ...options,
+          grid: {
+            left: '4%',
+            right: '4%',
+            bottom: '16%',
+            top: '10%',
+            containLabel: true,
+          },
+          xAxis: {
+            type: 'category',
+            data: categories,
+            axisLine: { lineStyle: { color: axisLineColor, width: 1.5 } },
+            axisTick: { show: false },
+            axisLabel: {
+              color: axisLabelColor,
+              fontSize: 10,
+              interval: 0,
+              rotate: categories.length > 4 ? 25 : 0,
+              width: 60,
+              overflow: 'truncate',
+              ellipsis: '...',
+            },
+          },
+          yAxis: {
+            type: 'value',
+            splitLine: { lineStyle: { color: splitLineColor } },
+            axisLabel: { color: axisLabelColor, fontSize: 10 },
+          },
+          series: [
+            {
+              name: 'Total',
+              type: 'bar',
+              data: counts,
+              barMaxWidth: 36,
+              itemStyle: {
+                color: '#dceeb1', // Figma Lime
+                borderColor: isDark ? '#ffffff' : '#000000',
+                borderWidth: 1.5,
+                borderRadius: [6, 6, 0, 0],
+              },
+            },
+          ],
+        };
+      }
+    } else if (chart.type === 'pie') {
+      const isLegendTop = pieLegendPosition === 'top';
 
       options = {
         ...options,
-        xAxis: {
-          type: 'category',
-          data: xData,
-          axisLine: { lineStyle: { color: axisLineColor, width: 1.5 } },
-          axisTick: { show: false },
-          axisLabel: { color: axisLabelColor, fontSize: 10, rotate: xData.length > 4 ? 25 : 0 },
+        tooltip: {
+          trigger: 'item',
+          backgroundColor: tooltipBg,
+          borderColor: tooltipBorder,
+          textStyle: { color: '#ffffff', fontSize: 12, fontFamily: 'Google Sans Flex, Google Sans, sans-serif' },
+          borderRadius: 8,
+          padding: [8, 12],
+          formatter: '{b}: <b>{c}</b> ({d}%)',
         },
-        yAxis: {
-          type: 'value',
-          splitLine: { lineStyle: { color: splitLineColor } },
-          axisLabel: { color: axisLabelColor, fontSize: 10 },
-        },
-        series: [
-          {
-            name: 'Total',
-            type: 'bar',
-            data: yData,
-            barMaxWidth: 44,
-            itemStyle: {
-              color: '#dceeb1', // Figma Lime
-              borderColor: isDark ? '#ffffff' : '#000000',
-              borderWidth: 1.5,
-              borderRadius: [6, 6, 0, 0],
-            },
-          },
-        ],
-      };
-    } else if (chart.type === 'pie') {
-      options = {
-        ...options,
         legend: {
-          bottom: '1%',
-          textStyle: { color: axisLabelColor, fontSize: 10 },
+          show: true,
+          type: 'scroll',
+          orient: 'horizontal',
+          top: isLegendTop ? '2%' : undefined,
+          bottom: !isLegendTop ? '2%' : undefined,
+          left: 'center',
           itemWidth: 10,
           itemHeight: 10,
+          itemGap: 14,
           icon: 'circle',
+          textStyle: { color: axisLabelColor, fontSize: 11, fontFamily: 'Google Sans Flex, Google Sans, sans-serif' },
+          pageIconColor: isDark ? '#ffffff' : '#000000',
+          pageIconInactiveColor: isDark ? '#555555' : '#cccccc',
+          pageTextStyle: { color: axisLabelColor, fontSize: 10 },
         },
         series: [
           {
             name: chart.title,
             type: 'pie',
-            radius: ['45%', '72%'],
-            center: ['50%', '46%'],
-            avoidLabelOverlap: false,
+            // When legend is at top: push donut down to center ['50%', '64%']
+            // When legend is at bottom: center donut at ['50%', '40%']
+            radius: ['38%', '60%'],
+            center: isLegendTop ? ['50%', '64%'] : ['50%', '40%'],
+            avoidLabelOverlap: true,
             itemStyle: {
               borderRadius: 6,
               borderColor: isDark ? '#141414' : '#ffffff',
@@ -166,11 +279,14 @@
               show: false,
             },
             emphasis: {
+              scale: true,
+              scaleSize: 6,
               label: {
                 show: true,
                 fontSize: 12,
                 fontWeight: 'bold',
                 color: isDark ? '#ffffff' : '#000000',
+                formatter: '{b}\n{d}%',
               },
             },
             data: chart.data,
@@ -200,13 +316,62 @@
       </h3>
       <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{chart.description}</p>
     </div>
-    <span class="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider px-2.5 sm:px-3 py-1 bg-[#f7f7f5] dark:bg-[#1f1f1f] text-black dark:text-white border border-[#e6e6e6] dark:border-[#333333] rounded-full font-medium shrink-0">
-      {chart.type}
-    </span>
+
+    <!-- Header Actions & Chart Type Badge -->
+    <div class="flex items-center gap-1.5 shrink-0">
+      {#if chart.type === 'bar'}
+        <!-- Bar Orientation Pill Switcher -->
+        <div class="inline-flex p-0.5 rounded-full bg-[#f7f7f5] dark:bg-[#1a1a1a] border border-[#e6e6e6] dark:border-[#333333]">
+          <button
+            type="button"
+            onclick={() => barOrientation = 'horizontal'}
+            class="px-2 py-0.5 rounded-full text-[10px] font-mono transition-all {barOrientation === 'horizontal' ? 'bg-black dark:bg-white text-white dark:text-black font-semibold shadow-xs' : 'text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white cursor-pointer'}"
+            title="Horizontal bars (optimized for wide categories)"
+          >
+            Horiz
+          </button>
+          <button
+            type="button"
+            onclick={() => barOrientation = 'vertical'}
+            class="px-2 py-0.5 rounded-full text-[10px] font-mono transition-all {barOrientation === 'vertical' ? 'bg-black dark:bg-white text-white dark:text-black font-semibold shadow-xs' : 'text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white cursor-pointer'}"
+            title="Vertical bars"
+          >
+            Vert
+          </button>
+        </div>
+      {:else if chart.type === 'pie'}
+        <!-- Pie Legend / Position Pill Switcher -->
+        <div class="inline-flex p-0.5 rounded-full bg-[#f7f7f5] dark:bg-[#1a1a1a] border border-[#e6e6e6] dark:border-[#333333]">
+          <button
+            type="button"
+            onclick={() => pieLegendPosition = 'top'}
+            class="px-2 py-0.5 rounded-full text-[10px] font-mono transition-all {pieLegendPosition === 'top' ? 'bg-black dark:bg-white text-white dark:text-black font-semibold shadow-xs' : 'text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white cursor-pointer'}"
+            title="Top legend with pie pushed down"
+          >
+            Pushed Down
+          </button>
+          <button
+            type="button"
+            onclick={() => pieLegendPosition = 'bottom'}
+            class="px-2 py-0.5 rounded-full text-[10px] font-mono transition-all {pieLegendPosition === 'bottom' ? 'bg-black dark:bg-white text-white dark:text-black font-semibold shadow-xs' : 'text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white cursor-pointer'}"
+            title="Bottom legend"
+          >
+            Bottom
+          </button>
+        </div>
+      {/if}
+
+      <span class="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider px-2.5 sm:px-3 py-1 bg-[#f7f7f5] dark:bg-[#1f1f1f] text-black dark:text-white border border-[#e6e6e6] dark:border-[#333333] rounded-full font-medium">
+        {chart.type}
+      </span>
+    </div>
   </div>
 
-  <!-- Interactive ECharts Canvas -->
-  <div bind:this={chartContainer} class="w-full h-56 sm:h-64 min-h-[220px]"></div>
+  <!-- Interactive ECharts Canvas (extra height for pie to accommodate pushed-down donut & legend) -->
+  <div
+    bind:this={chartContainer}
+    class="w-full {chart.type === 'pie' ? 'h-64 sm:h-72 min-h-[260px]' : 'h-56 sm:h-64 min-h-[220px]'}"
+  ></div>
 
   <!-- Real Key Details & Findings Section (Informing the User) -->
   {#if chart.insights}
@@ -218,7 +383,7 @@
           class="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-mono font-medium text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white cursor-pointer transition-colors"
         >
           <Info class="w-3.5 h-3.5 text-neutral-500 shrink-0" />
-          <span>Methodology & key findings</span>
+          <span>Findings & method</span>
           {#if showDetails}
             <ChevronUp class="w-3 h-3 text-neutral-400 shrink-0" />
           {:else}
@@ -227,7 +392,7 @@
         </button>
 
         {#if chart.insights.metricSummary && chart.insights.metricSummary.length > 0}
-          <span class="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#f7f7f5] dark:bg-[#1a1a1a] text-neutral-600 dark:text-neutral-400 border border-[#e6e6e6] dark:border-[#2c2c2c]">
+          <span class="hidden sm:inline-block max-w-[140px] truncate text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#f7f7f5] dark:bg-[#1a1a1a] text-neutral-600 dark:text-neutral-400 border border-[#e6e6e6] dark:border-[#2c2c2c]">
             {chart.insights.metricSummary[0].label}: {chart.insights.metricSummary[0].value}
           </span>
         {/if}
@@ -259,9 +424,9 @@
           {#if chart.insights.metricSummary && chart.insights.metricSummary.length > 0}
             <div class="flex flex-wrap gap-1.5 pt-1.5">
               {#each chart.insights.metricSummary as metric}
-                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white dark:bg-[#121212] border border-[#e6e6e6] dark:border-[#333333] text-[10px] font-mono">
-                  <span class="text-neutral-500 dark:text-neutral-400">{metric.label}:</span>
-                  <span class="font-bold text-black dark:text-white">{metric.value}</span>
+                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white dark:bg-[#121212] border border-[#e6e6e6] dark:border-[#333333] text-[10px] font-mono max-w-[200px]">
+                  <span class="text-neutral-500 dark:text-neutral-400 shrink-0">{metric.label}:</span>
+                  <span class="font-bold text-black dark:text-white truncate" title={metric.value}>{metric.value}</span>
                 </div>
               {/each}
             </div>

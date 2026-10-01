@@ -9,14 +9,12 @@
     ArrowLeft,
     Download,
     Search,
-    BrainCircuit,
     Sparkles,
     ChevronLeft,
     ChevronRight,
     RefreshCw,
     Eye,
     X,
-    FileSpreadsheet
   } from '@lucide/svelte';
 
   let { summary, rows, charts, onReset } = $props<{
@@ -267,14 +265,14 @@
   <div class="rounded-[20px] sm:rounded-[24px] p-5 sm:p-8 md:p-12 border {domainPastel}">
     <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 sm:gap-6 mb-6">
       <div>
-        <div class="flex flex-wrap items-center gap-2">
+        <!-- <div class="flex flex-wrap items-center gap-2">
           <span class="font-mono text-[11px] sm:text-[12px] uppercase tracking-wider font-bold opacity-80">
             Detected Business Domain
-          </span>
-          <span class="inline-flex items-center px-2.5 sm:px-3 py-0.5 rounded-full bg-black dark:bg-white text-white dark:text-black text-[10px] sm:text-[11px] font-mono font-semibold uppercase">
+          </span> -->
+          <!-- <span class="inline-flex items-center px-2.5 sm:px-3 py-0.5 rounded-full bg-black dark:bg-white text-white dark:text-black text-[10px] sm:text-[11px] font-mono font-semibold uppercase">
             {summary.detectedDomain} &bull; {Math.round(summary.domainConfidence * 100)}% Match
-          </span>
-        </div>
+          </span> -->
+        <!-- </div> -->
         <h2 class="mt-2.5 sm:mt-3 text-[26px] sm:text-[34px] md:text-[44px] font-normal tracking-[-0.96px] leading-[1.15]">
           {activePreset.name}
         </h2>
