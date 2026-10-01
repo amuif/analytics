@@ -5,17 +5,6 @@
   import { db } from '../lib/db';
   import ChartCard from './ChartCard.svelte';
   import StressMeter from './StressMeter.svelte';
-  import {
-    ArrowLeft,
-    Download,
-    Search,
-    Sparkles,
-    ChevronLeft,
-    ChevronRight,
-    RefreshCw,
-    Eye,
-    X,
-  } from '@lucide/svelte';
 
   let { summary, rows, charts, onReset } = $props<{
     summary: DatasetSummary;
@@ -223,9 +212,8 @@
         <button
           type="button"
           onclick={onReset}
-          class="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-white dark:bg-[#181818] hover:bg-neutral-50 dark:hover:bg-[#242424] text-black dark:text-white border border-black dark:border-[#383838] text-xs font-medium transition-all cursor-pointer shadow-xs shrink-0"
+          class="inline-flex items-center px-4 sm:px-5 py-2.5 rounded-full bg-white dark:bg-[#181818] hover:bg-neutral-50 dark:hover:bg-[#242424] text-black dark:text-white border border-black dark:border-[#383838] text-xs font-medium transition-all cursor-pointer shadow-xs shrink-0"
         >
-          <ArrowLeft class="w-3.5 h-3.5" />
           <span>Upload Dataset</span>
         </button>
 
@@ -246,9 +234,8 @@
         type="button"
         onclick={exportDecisionsToCSV}
         disabled={decisions.length === 0}
-        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50 shadow-xs"
+        class="w-full sm:w-auto inline-flex items-center justify-center px-5 sm:px-6 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50 shadow-xs"
       >
-        <Download class="w-3.5 h-3.5" />
         <span>Export Decisions (CSV)</span>
       </button>
     </div>
@@ -265,14 +252,6 @@
   <div class="rounded-[20px] sm:rounded-[24px] p-5 sm:p-8 md:p-12 border {domainPastel}">
     <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 sm:gap-6 mb-6">
       <div>
-        <!-- <div class="flex flex-wrap items-center gap-2">
-          <span class="font-mono text-[11px] sm:text-[12px] uppercase tracking-wider font-bold opacity-80">
-            Detected Business Domain
-          </span> -->
-          <!-- <span class="inline-flex items-center px-2.5 sm:px-3 py-0.5 rounded-full bg-black dark:bg-white text-white dark:text-black text-[10px] sm:text-[11px] font-mono font-semibold uppercase">
-            {summary.detectedDomain} &bull; {Math.round(summary.domainConfidence * 100)}% Match
-          </span> -->
-        <!-- </div> -->
         <h2 class="mt-2.5 sm:mt-3 text-[26px] sm:text-[34px] md:text-[44px] font-normal tracking-[-0.96px] leading-[1.15]">
           {activePreset.name}
         </h2>
@@ -286,9 +265,8 @@
         type="button"
         onclick={() => runLayaEvaluation(activePreset)}
         disabled={isEvaluating}
-        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50 shadow-xs shrink-0"
+        class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50 shadow-xs shrink-0"
       >
-        <RefreshCw class="w-3.5 h-3.5 {isEvaluating ? 'animate-spin' : ''}" />
         <span>{isEvaluating ? 'Evaluating...' : 'Re-Run Model'}</span>
       </button>
     </div>
@@ -299,12 +277,11 @@
         <button
           type="button"
           onclick={() => handlePresetChange(preset)}
-          class="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition-all cursor-pointer
+          class="inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition-all cursor-pointer
             {activePreset.id === preset.id
               ? 'bg-black dark:bg-white text-white dark:text-black shadow-xs'
               : 'bg-white/80 dark:bg-black/40 hover:bg-white dark:hover:bg-black/70 text-black dark:text-white border border-black/20 dark:border-white/20'}"
         >
-          <Sparkles class="w-3.5 h-3.5" />
           <span>{preset.name}</span>
         </button>
       {/each}
@@ -418,12 +395,11 @@
         </div>
 
         <div class="relative flex-1 sm:flex-initial">
-          <Search class="w-3.5 h-3.5 text-neutral-400 absolute left-3.5 top-3" />
           <input
             type="text"
             placeholder="Search rows..."
             bind:value={searchQuery}
-            class="w-full sm:w-56 pl-9 pr-4 py-2 rounded-full bg-[#f7f7f5] dark:bg-[#1c1c1c] border border-[#e6e6e6] dark:border-[#333333] text-xs text-black dark:text-white placeholder-neutral-400 focus:outline-none focus:border-black dark:focus:border-white font-sans"
+            class="w-full sm:w-56 px-4 py-2 rounded-full bg-[#f7f7f5] dark:bg-[#1c1c1c] border border-[#e6e6e6] dark:border-[#333333] text-xs text-black dark:text-white placeholder-neutral-400 focus:outline-none focus:border-black dark:focus:border-white font-sans"
           />
         </div>
 
@@ -502,9 +478,8 @@
               <button
                 type="button"
                 onclick={() => inspectingRowIndex = item.raw._rowIndex}
-                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-black dark:border-white text-black dark:text-white text-[11px] font-medium hover:bg-neutral-100 dark:hover:bg-[#252525] cursor-pointer"
+                class="inline-flex items-center px-3.5 py-1.5 rounded-full border border-black dark:border-white text-black dark:text-white text-[11px] font-medium hover:bg-neutral-100 dark:hover:bg-[#252525] cursor-pointer"
               >
-                <Eye class="w-3 h-3" />
                 <span>Inspect Attributes</span>
               </button>
             </div>
@@ -573,14 +548,14 @@
                   {item.decision?.reasoningSummary || 'Calculating...'}
                 </td>
                 <td class="py-3.5 px-4 text-right">
-                  <!-- Circular Pill Button -->
+                  <!-- Text Pill Button -->
                   <button
                     type="button"
                     onclick={() => inspectingRowIndex = item.raw._rowIndex}
-                    class="w-7 h-7 rounded-full inline-flex items-center justify-center border border-[#e6e6e6] dark:border-[#333333] hover:border-black dark:hover:border-white text-black dark:text-white transition-colors cursor-pointer"
+                    class="px-2.5 py-1 rounded-full text-[11px] font-mono font-medium border border-[#e6e6e6] dark:border-[#333333] hover:border-black dark:hover:border-white text-black dark:text-white transition-colors cursor-pointer"
                     title="Inspect attributes"
                   >
-                    <Eye class="w-3.5 h-3.5" />
+                    Inspect
                   </button>
                 </td>
               </tr>
@@ -590,7 +565,7 @@
       </table>
     </div>
 
-    <!-- Pagination Controls (Pills) -->
+    <!-- Pagination Controls (Pure Typography Pills) -->
     <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-6 text-xs text-neutral-600 dark:text-neutral-400">
       <span class="text-center sm:text-left">
         Showing {filteredRows.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to {Math.min(currentPage * pageSize, filteredRows.length)} of {filteredRows.length.toLocaleString()} records
@@ -600,18 +575,18 @@
           type="button"
           disabled={currentPage === 1}
           onclick={() => currentPage = Math.max(1, currentPage - 1)}
-          class="w-8 h-8 rounded-full border border-black dark:border-[#444444] inline-flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-[#252525] disabled:opacity-30 cursor-pointer"
+          class="px-3 py-1 rounded-full border border-black dark:border-[#444444] text-[11px] font-mono font-medium hover:bg-neutral-100 dark:hover:bg-[#252525] disabled:opacity-30 cursor-pointer text-black dark:text-white"
         >
-          <ChevronLeft class="w-4 h-4" />
+          Prev
         </button>
         <span class="px-2 font-mono text-black dark:text-white font-medium">Page {currentPage} of {totalPages}</span>
         <button
           type="button"
           disabled={currentPage >= totalPages}
           onclick={() => currentPage = Math.min(totalPages, currentPage + 1)}
-          class="w-8 h-8 rounded-full border border-black dark:border-[#444444] inline-flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-[#252525] disabled:opacity-30 cursor-pointer"
+          class="px-3 py-1 rounded-full border border-black dark:border-[#444444] text-[11px] font-mono font-medium hover:bg-neutral-100 dark:hover:bg-[#252525] disabled:opacity-30 cursor-pointer text-black dark:text-white"
         >
-          <ChevronRight class="w-4 h-4" />
+          Next
         </button>
       </div>
     </div>
@@ -633,9 +608,9 @@
           <button
             type="button"
             onclick={() => inspectingRowIndex = null}
-            class="w-8 h-8 rounded-full border border-black dark:border-white inline-flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-[#252525] cursor-pointer"
+            class="px-3 py-1 rounded-full border border-black dark:border-white text-[11px] font-mono hover:bg-neutral-100 dark:hover:bg-[#252525] cursor-pointer text-black dark:text-white"
           >
-            <X class="w-4 h-4 text-black dark:text-white" />
+            Close
           </button>
         </div>
 

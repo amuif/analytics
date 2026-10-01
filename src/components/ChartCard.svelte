@@ -3,7 +3,6 @@
   import * as echarts from 'echarts';
   import type { ChartDefinition } from '../types';
   import { themeManager } from '../lib/theme.svelte';
-  import { BarChart3, PieChart as PieIcon, LineChart, Info, ChevronDown, ChevronUp } from '@lucide/svelte';
 
   let { chart } = $props<{ chart: ChartDefinition }>();
 
@@ -304,15 +303,8 @@
   <!-- Card Header -->
   <div class="flex items-start justify-between gap-3 mb-3">
     <div>
-      <h3 class="text-[15px] sm:text-[16px] font-semibold text-black dark:text-white flex items-center gap-2 tracking-tight">
-        {#if chart.type === 'histogram'}
-          <BarChart3 class="w-4 h-4 text-black dark:text-white shrink-0" />
-        {:else if chart.type === 'pie'}
-          <PieIcon class="w-4 h-4 text-black dark:text-white shrink-0" />
-        {:else}
-          <LineChart class="w-4 h-4 text-black dark:text-white shrink-0" />
-        {/if}
-        <span>{chart.title}</span>
+      <h3 class="text-[15px] sm:text-[16px] font-semibold text-black dark:text-white tracking-tight">
+        {chart.title}
       </h3>
       <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{chart.description}</p>
     </div>
@@ -382,13 +374,8 @@
           onclick={() => showDetails = !showDetails}
           class="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-mono font-medium text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white cursor-pointer transition-colors"
         >
-          <Info class="w-3.5 h-3.5 text-neutral-500 shrink-0" />
           <span>Findings & method</span>
-          {#if showDetails}
-            <ChevronUp class="w-3 h-3 text-neutral-400 shrink-0" />
-          {:else}
-            <ChevronDown class="w-3 h-3 text-neutral-400 shrink-0" />
-          {/if}
+          <span class="text-[10px] text-neutral-400 dark:text-neutral-500 font-mono">[{showDetails ? 'Hide' : 'Show'}]</span>
         </button>
 
         {#if chart.insights.metricSummary && chart.insights.metricSummary.length > 0}

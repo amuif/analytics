@@ -2,20 +2,6 @@
   import { parseDataFile, type ParseResult } from '../lib/parser';
   import { SAMPLE_DATASETS, type SampleDatasetInfo } from '../lib/sample-datasets';
   import { db } from '../lib/db';
-  import {
-    UploadCloud,
-    FileSpreadsheet,
-    FileText,
-    Sparkles,
-    ShieldCheck,
-    AlertCircle,
-    Loader2,
-    Users,
-    TrendingUp,
-    ShoppingBag,
-    Boxes,
-    ArrowRight
-  } from '@lucide/svelte';
 
   let { onDataParsed } = $props<{ onDataParsed: (result: ParseResult) => void }>();
 
@@ -109,8 +95,7 @@
 <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
   <!-- Figma Signature Magenta Promo Accent -->
   <div class="flex justify-center mb-4 sm:mb-6">
-    <div class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#ff3d8b] text-white text-[11px] sm:text-[12px] font-medium shadow-sm text-center">
-      <ShieldCheck class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+    <div class="inline-flex items-center px-3.5 sm:px-4 py-1.5 rounded-full bg-[#ff3d8b] text-white text-[11px] sm:text-[12px] font-medium shadow-sm text-center">
       <span>100% Client-Side Privacy &bull; Zero Server Network Calls</span>
     </div>
   </div>
@@ -147,15 +132,12 @@
 
     {#if isParsing}
       <div class="flex flex-col items-center gap-4 text-black dark:text-white text-center">
-        <Loader2 class="w-8 h-8 sm:w-10 sm:h-10 animate-spin text-black dark:text-white" />
+        <span class="inline-block w-8 h-8 sm:w-10 sm:h-10 border-2 border-black dark:border-white border-t-transparent dark:border-t-transparent rounded-full animate-spin"></span>
         <p class="text-base sm:text-lg font-medium tracking-tight">{statusMessage || 'Processing dataset...'}</p>
         <span class="text-xs font-mono text-neutral-700 dark:text-neutral-300">Executing client-side parser & IndexedDB storage...</span>
       </div>
     {:else}
       <div class="flex flex-col items-center text-center text-black dark:text-white">
-        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white dark:bg-[#111111] border border-black dark:border-[#444444] flex items-center justify-center mb-4 sm:mb-5 shadow-sm">
-          <UploadCloud class="w-6 h-6 sm:w-8 sm:h-8 text-black dark:text-white" />
-        </div>
         <p class="text-[18px] sm:text-[22px] md:text-[24px] font-medium tracking-tight text-black dark:text-white">
           Drop your dataset here, or <span class="underline decoration-black dark:decoration-white underline-offset-4 font-semibold">browse</span>
         </p>
@@ -163,23 +145,23 @@
           Supports Inventory, Warehouse, ERP & Sales files (.xlsx, .xls, .csv, .tsv) up to 10,000+ rows.
         </p>
 
-        <!-- Figma Pill Badges -->
+        <!-- Figma Pill Badges (Pure Typography) -->
         <div class="flex flex-wrap items-center justify-center gap-2 mt-5 sm:mt-6">
-          <span class="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-[11px] sm:text-xs font-mono font-medium">
-            <FileSpreadsheet class="w-3.5 h-3.5" /> .XLSX / .XLS
+          <span class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-[11px] sm:text-xs font-mono font-medium">
+            .XLSX / .XLS
           </span>
-          <span class="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-[11px] sm:text-xs font-mono font-medium">
-            <FileText class="w-3.5 h-3.5" /> .CSV / .TSV
+          <span class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-[11px] sm:text-xs font-mono font-medium">
+            .CSV / .TSV
           </span>
         </div>
       </div>
     {/if}
   </label>
 
-  <!-- Error Alert -->
+  <!-- Error Banner (Pure Typography) -->
   {#if errorMessage}
-    <div class="w-full mt-5 sm:mt-6 flex items-center gap-3 p-4 rounded-[16px] bg-[#efd4d4] dark:bg-[#3d1f1f] border border-black dark:border-rose-500 text-black dark:text-white text-xs font-medium">
-      <AlertCircle class="w-4 h-4 shrink-0 text-black dark:text-rose-400" />
+    <div class="w-full mt-5 sm:mt-6 flex items-center gap-2.5 p-4 rounded-[16px] bg-[#efd4d4] dark:bg-[#3d1f1f] border border-black dark:border-rose-500 text-black dark:text-white text-xs font-medium">
+      <span class="font-mono font-bold uppercase text-[10px]">Error:</span>
       <span>{errorMessage}</span>
     </div>
   {/if}
@@ -187,8 +169,7 @@
   <!-- 1-Click Sample Datasets (Figma Pastel Blocks) -->
   <div class="w-full mt-12 sm:mt-16 pt-8 sm:pt-10 border-t border-[#e6e6e6] dark:border-[#222222]">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5 sm:mb-6">
-      <div class="flex items-center gap-2">
-        <Sparkles class="w-4 h-4 text-black dark:text-white" />
+      <div>
         <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-black dark:text-white">
           Quick Start with Sample Datasets
         </h2>
@@ -206,15 +187,6 @@
               <span class="text-xs font-mono uppercase tracking-wider font-semibold text-neutral-800 dark:text-neutral-200">
                 {sample.domain} Playbook
               </span>
-              {#if sample.domain === 'Inventory'}
-                <Boxes class="w-4 h-4 text-black dark:text-white" />
-              {:else if sample.domain === 'Sales'}
-                <TrendingUp class="w-4 h-4 text-black dark:text-white" />
-              {:else if sample.domain === 'HR'}
-                <Users class="w-4 h-4 text-black dark:text-white" />
-              {:else}
-                <ShoppingBag class="w-4 h-4 text-black dark:text-white" />
-              {/if}
             </div>
             <h3 class="text-[18px] sm:text-[20px] font-medium leading-tight text-black dark:text-white tracking-tight">
               {sample.name}
@@ -230,10 +202,9 @@
               type="button"
               onclick={() => loadSample(sample)}
               disabled={isParsing}
-              class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
+              class="w-full inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
             >
               <span>Load {sample.domain} Demo</span>
-              <ArrowRight class="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

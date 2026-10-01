@@ -6,12 +6,10 @@
   import { themeManager } from './lib/theme.svelte';
   import type { DatasetSummary, ChartDefinition } from './types';
   import type { ParseResult } from './lib/parser';
-  import { Layers,  Monitor, Sun, Moon } from '@lucide/svelte';
-
+  // State
   let currentSummary = $state<DatasetSummary | null>(null);
   let currentRows = $state<Record<string, any>[]>([]);
   let currentCharts = $state<ChartDefinition[]>([]);
-  // let isRestoring = $state(true);
 
   onMount(async () => {
     try {
@@ -24,9 +22,6 @@
     } catch (e) {
       console.warn('Could not restore last dataset from IndexedDB:', e);
     } 
-    // finally {
-    //   isRestoring = false;
-    // }
   });
 
   function handleDataParsed(result: ParseResult) {
@@ -47,9 +42,9 @@
   <header class="border-b border-[#e6e6e6] dark:border-[#222222] bg-white dark:bg-[#121212] sticky top-0 z-40 transition-colors duration-200">
     <div class="max-w-[1280px] mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
       <div class="flex items-center gap-2.5 sm:gap-3">
-        <!-- Solid Black / White Brand Mark -->
+        <!-- Solid Black / White Monogram Brand Mark -->
         <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black transition-colors shrink-0">
-          <Layers class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span class="text-xs sm:text-sm font-bold font-mono leading-none">L</span>
         </div>
         <div class="flex items-center gap-1.5 sm:gap-2">
           <span class="text-sm sm:text-base font-semibold tracking-tight text-black dark:text-white">Laya Studio</span>
@@ -59,15 +54,9 @@
         </div>
       </div>
 
-      <!-- Header Badges and Theme Switcher (Pills) -->
+      <!-- Header Badges and Theme Switcher (Pure Typography) -->
       <div class="flex items-center gap-2 sm:gap-3">
-        <!-- <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#dceeb1] dark:bg-[#283518] text-black dark:text-[#dceeb1] text-xs font-mono font-medium border dark:border-[#405524]">
-          <ShieldCheck class="w-3.5 h-3.5 text-black dark:text-[#dceeb1]" />
-          <span>Air-Gapped Client</span>
-        </div> -->
-
-        <div class="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white dark:bg-[#181818] border border-black dark:border-[#333333] text-black dark:text-white text-xs font-mono font-medium">
-          <Monitor class="w-3.5 h-3.5" />
+        <div class="hidden md:inline-flex items-center px-3.5 py-1 rounded-full bg-white dark:bg-[#181818] border border-black dark:border-[#333333] text-black dark:text-white text-xs font-mono font-medium">
           <span>Desktop & Web</span>
         </div>
 
@@ -75,16 +64,11 @@
         <button
           type="button"
           onclick={() => themeManager.toggle()}
-          class="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full border border-black dark:border-[#383838] bg-[#f7f7f5] dark:bg-[#1c1c1c] hover:bg-neutral-200 dark:hover:bg-[#252525] text-xs font-mono font-semibold transition-all cursor-pointer shadow-xs"
+          class="inline-flex items-center px-3 sm:px-3.5 py-1.5 rounded-full border border-black dark:border-[#383838] bg-[#f7f7f5] dark:bg-[#1c1c1c] hover:bg-neutral-200 dark:hover:bg-[#252525] text-xs font-mono font-semibold transition-all cursor-pointer shadow-xs"
           title="Toggle light or dark theme"
         >
-          {#if themeManager.current === 'dark'}
-            <Sun class="w-3.5 h-3.5 text-amber-300" />
-            <span class="text-white">Light</span>
-          {:else}
-            <Moon class="w-3.5 h-3.5 text-neutral-800" />
-            <span class="text-black">Dark</span>
-          {/if}
+          <span class="text-neutral-500 dark:text-neutral-400 mr-1 text-[11px]">Theme:</span>
+          <span class="text-black dark:text-white capitalize">{themeManager.current}</span>
         </button>
       </div>
     </div>
