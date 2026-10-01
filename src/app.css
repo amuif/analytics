@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --figma-black: #000000;
+    --figma-white: #ffffff;
+    --figma-surface-soft: #f7f7f5;
+    --figma-hairline: #e6e6e6;
+    --figma-hairline-soft: #f1f1f1;
+    --figma-magenta: #ff3d8b;
+    --figma-lime: #dceeb1;
+    --figma-lilac: #c5b0f4;
+    --figma-cream: #f4ecd6;
+    --figma-mint: #c8e6cd;
+    --figma-pink: #efd4d4;
+    --figma-coral: #f3c9b6;
+    --figma-navy: #1f1d3d;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #000000;
+    font-family: "Google Sans Flex", "Google Sans", "Product Sans", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    selection-background-color: #c5b0f4;
+    selection-color: #000000;
+    min-height: 100vh;
+  }
+
+  code, kbd, samp, pre, .font-mono {
+    font-family: "Google Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  }
+}
+
+/* Figma Pill Utility */
+.figma-pill {
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  transition: all 150ms ease-in-out;
+}
+
+/* Custom Scrollbar in Minimalist Style */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f7f7f5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3;
+}
