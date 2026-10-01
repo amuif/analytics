@@ -96,11 +96,11 @@
     }
   }
 
-  // Figma Pastel Themes for sample datasets
+  // Figma Pastel Themes for sample datasets (Light & Dark)
   function getSampleTheme(domain: string) {
-    if (domain === 'HR') return 'bg-[#dceeb1]'; // Lime
-    if (domain === 'Sales') return 'bg-[#c5b0f4]'; // Lilac
-    return 'bg-[#f3c9b6]'; // Coral
+    if (domain === 'HR') return 'bg-[#dceeb1] dark:bg-[#1e2d14] dark:border-[#3c5427]'; // Lime
+    if (domain === 'Sales') return 'bg-[#c5b0f4] dark:bg-[#251b3d] dark:border-[#4d377b]'; // Lilac
+    return 'bg-[#f3c9b6] dark:bg-[#381f17] dark:border-[#733e2c]'; // Coral
   }
 </script>
 
@@ -115,21 +115,24 @@
 
   <!-- Editorial Headline in Figma Typography Scale -->
   <div class="text-center max-w-3xl mx-auto mb-12">
-    <h1 class="text-[44px] sm:text-[64px] md:text-[76px] font-normal leading-[1.0] tracking-[-1.5px] text-black">
+    <h1 class="text-[44px] sm:text-[64px] md:text-[76px] font-normal leading-[1.0] tracking-[-1.5px] text-black dark:text-white">
       Decide with data.
     </h1>
-    <p class="mt-5 text-[18px] sm:text-[22px] font-light text-neutral-600 leading-snug tracking-[-0.26px]">
+    <p class="mt-5 text-[18px] sm:text-[22px] font-light text-neutral-600 dark:text-neutral-400 leading-snug tracking-[-0.26px]">
       Upload your spreadsheets. We ingest them locally, auto-build visual distributions, and trigger non-autoregressive decision models in your browser.
     </p>
   </div>
 
-  <!-- Pastel Dropzone Block (Figma Signature Mint Canvas) -->
+  <!-- Pastel Dropzone Block (Figma Mint Canvas - Adapted for Light & Dark) -->
   <label
     for="file-upload"
     ondragover={handleDragOver}
     ondragleave={handleDragLeave}
     ondrop={handleDrop}
-    class="w-full relative flex flex-col items-center justify-center p-12 md:p-16 rounded-[24px] cursor-pointer transition-all duration-200 border-2 border-dashed {isDragging ? 'bg-[#bfe0c5] border-black scale-[1.01]' : 'bg-[#c8e6cd] border-black/40 hover:border-black'}"
+    class="w-full relative flex flex-col items-center justify-center p-12 md:p-16 rounded-[24px] cursor-pointer transition-all duration-200 border-2 border-dashed
+      {isDragging
+        ? 'bg-[#bfe0c5] dark:bg-[#233d28] border-black dark:border-white scale-[1.01]'
+        : 'bg-[#c8e6cd] dark:bg-[#18291d] border-black/40 dark:border-[#528f5c]/50 hover:border-black dark:hover:border-[#7bc888]'}"
   >
     <input
       id="file-upload"
@@ -141,29 +144,29 @@
     />
 
     {#if isParsing}
-      <div class="flex flex-col items-center gap-4 text-black">
-        <Loader2 class="w-10 h-10 animate-spin text-black" />
+      <div class="flex flex-col items-center gap-4 text-black dark:text-white">
+        <Loader2 class="w-10 h-10 animate-spin text-black dark:text-white" />
         <p class="text-lg font-medium tracking-tight">{statusMessage || 'Processing dataset...'}</p>
-        <span class="text-xs font-mono text-neutral-700">Executing client-side parser & IndexedDB storage...</span>
+        <span class="text-xs font-mono text-neutral-700 dark:text-neutral-300">Executing client-side parser & IndexedDB storage...</span>
       </div>
     {:else}
-      <div class="flex flex-col items-center text-center text-black">
-        <div class="w-16 h-16 rounded-full bg-white border border-black flex items-center justify-center mb-5 shadow-sm">
-          <UploadCloud class="w-8 h-8 text-black" />
+      <div class="flex flex-col items-center text-center text-black dark:text-white">
+        <div class="w-16 h-16 rounded-full bg-white dark:bg-[#111111] border border-black dark:border-[#444444] flex items-center justify-center mb-5 shadow-sm">
+          <UploadCloud class="w-8 h-8 text-black dark:text-white" />
         </div>
-        <p class="text-[20px] md:text-[24px] font-medium tracking-tight text-black">
-          Drop your dataset here, or <span class="underline decoration-black underline-offset-4 font-semibold">browse</span>
+        <p class="text-[20px] md:text-[24px] font-medium tracking-tight text-black dark:text-white">
+          Drop your dataset here, or <span class="underline decoration-black dark:decoration-white underline-offset-4 font-semibold">browse</span>
         </p>
-        <p class="text-sm text-neutral-700 mt-2 max-w-md">
+        <p class="text-sm text-neutral-700 dark:text-neutral-300 mt-2 max-w-md">
           Supports Excel (.xlsx, .xls) and CSV / TSV files up to 10,000+ rows.
         </p>
 
         <!-- Figma Pill Badges -->
         <div class="flex items-center gap-2 mt-6">
-          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-black border border-black text-xs font-mono">
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-xs font-mono font-medium">
             <FileSpreadsheet class="w-3.5 h-3.5" /> .XLSX / .XLS
           </span>
-          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-black border border-black text-xs font-mono">
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-xs font-mono font-medium">
             <FileText class="w-3.5 h-3.5" /> .CSV / .TSV
           </span>
         </div>
@@ -173,57 +176,57 @@
 
   <!-- Error Alert -->
   {#if errorMessage}
-    <div class="w-full mt-6 flex items-center gap-3 p-4 rounded-[16px] bg-[#efd4d4] border border-black text-black text-xs font-medium">
-      <AlertCircle class="w-4 h-4 shrink-0 text-black" />
+    <div class="w-full mt-6 flex items-center gap-3 p-4 rounded-[16px] bg-[#efd4d4] dark:bg-[#3d1f1f] border border-black dark:border-rose-500 text-black dark:text-white text-xs font-medium">
+      <AlertCircle class="w-4 h-4 shrink-0 text-black dark:text-rose-400" />
       <span>{errorMessage}</span>
     </div>
   {/if}
 
   <!-- 1-Click Sample Datasets (Figma Pastel Blocks) -->
-  <div class="w-full mt-16 pt-10 border-t border-[#e6e6e6]">
+  <div class="w-full mt-16 pt-10 border-t border-[#e6e6e6] dark:border-[#222222]">
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center gap-2">
-        <Sparkles class="w-4 h-4 text-black" />
-        <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-black">
+        <Sparkles class="w-4 h-4 text-black dark:text-white" />
+        <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-black dark:text-white">
           Quick Start with Sample Datasets
         </h2>
       </div>
-      <span class="text-xs font-mono text-neutral-500">1,000+ rows each</span>
+      <span class="text-xs font-mono text-neutral-500 dark:text-neutral-400">1,000+ rows each</span>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
       {#each SAMPLE_DATASETS as sample}
         <div
-          class="flex flex-col justify-between p-7 rounded-[24px] border border-black/10 hover:border-black transition-all duration-200 {getSampleTheme(sample.domain)}"
+          class="flex flex-col justify-between p-7 rounded-[24px] border transition-all duration-200 {getSampleTheme(sample.domain)}"
         >
           <div>
             <div class="flex items-center justify-between mb-3">
-              <span class="text-xs font-mono uppercase tracking-wider font-semibold text-neutral-800">
+              <span class="text-xs font-mono uppercase tracking-wider font-semibold text-neutral-800 dark:text-neutral-200">
                 {sample.domain} Playbook
               </span>
               {#if sample.domain === 'HR'}
-                <Users class="w-4 h-4 text-black" />
+                <Users class="w-4 h-4 text-black dark:text-white" />
               {:else if sample.domain === 'Sales'}
-                <TrendingUp class="w-4 h-4 text-black" />
+                <TrendingUp class="w-4 h-4 text-black dark:text-white" />
               {:else}
-                <ShoppingBag class="w-4 h-4 text-black" />
+                <ShoppingBag class="w-4 h-4 text-black dark:text-white" />
               {/if}
             </div>
-            <h3 class="text-[20px] font-medium leading-tight text-black tracking-tight">
+            <h3 class="text-[20px] font-medium leading-tight text-black dark:text-white tracking-tight">
               {sample.name}
             </h3>
-            <p class="text-xs text-neutral-700 mt-2.5 leading-relaxed">
+            <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-2.5 leading-relaxed">
               {sample.description}
             </p>
           </div>
 
-          <!-- Figma Pill Button -->
-          <div class="mt-6 pt-4 border-t border-black/10">
+          <!-- Figma Pill Button (Dark Mode Inverting) -->
+          <div class="mt-6 pt-4 border-t border-black/10 dark:border-white/10">
             <button
               type="button"
               onclick={() => loadSample(sample)}
               disabled={isParsing}
-              class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-black text-white hover:bg-neutral-800 text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
+              class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
             >
               <span>Load {sample.domain} Demo</span>
               <ArrowRight class="w-3.5 h-3.5" />
