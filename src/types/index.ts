@@ -69,6 +69,12 @@ export interface StressTelemetry {
   hardwareMode: 'WebGPU (Hardware Accelerated)' | 'WASM-SIMD (Multi-threaded)' | 'Native Rust/Tauri';
 }
 
+export interface ChartInsight {
+  methodology: string;
+  keyFindings: string[];
+  metricSummary?: { label: string; value: string }[];
+}
+
 export interface ChartDefinition {
   id: string;
   title: string;
@@ -77,4 +83,5 @@ export interface ChartDefinition {
   xKey: string;
   yKey?: string;
   data: any[];
+  insights?: ChartInsight;
 }

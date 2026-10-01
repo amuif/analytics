@@ -104,21 +104,21 @@
   }
 </script>
 
-<div class="w-full max-w-5xl mx-auto px-6 py-12 md:py-16">
+<div class="w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
   <!-- Figma Signature Magenta Promo Accent -->
-  <div class="flex justify-center mb-6">
-    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#ff3d8b] text-white text-[12px] font-medium shadow-sm">
-      <ShieldCheck class="w-4 h-4" />
+  <div class="flex justify-center mb-4 sm:mb-6">
+    <div class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#ff3d8b] text-white text-[11px] sm:text-[12px] font-medium shadow-sm text-center">
+      <ShieldCheck class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
       <span>100% Client-Side Privacy &bull; Zero Server Network Calls</span>
     </div>
   </div>
 
   <!-- Editorial Headline in Figma Typography Scale -->
-  <div class="text-center max-w-3xl mx-auto mb-12">
-    <h1 class="text-[44px] sm:text-[64px] md:text-[76px] font-normal leading-[1.0] tracking-[-1.5px] text-black dark:text-white">
+  <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+    <h1 class="text-[36px] sm:text-[56px] md:text-[76px] font-normal leading-[1.05] tracking-[-1.5px] text-black dark:text-white">
       Decide with data.
     </h1>
-    <p class="mt-5 text-[18px] sm:text-[22px] font-light text-neutral-600 dark:text-neutral-400 leading-snug tracking-[-0.26px]">
+    <p class="mt-3.5 sm:mt-5 text-[16px] sm:text-[20px] md:text-[22px] font-light text-neutral-600 dark:text-neutral-400 leading-snug tracking-[-0.26px]">
       Upload your spreadsheets. We ingest them locally, auto-build visual distributions, and trigger non-autoregressive decision models in your browser.
     </p>
   </div>
@@ -129,7 +129,7 @@
     ondragover={handleDragOver}
     ondragleave={handleDragLeave}
     ondrop={handleDrop}
-    class="w-full relative flex flex-col items-center justify-center p-12 md:p-16 rounded-[24px] cursor-pointer transition-all duration-200 border-2 border-dashed
+    class="w-full relative flex flex-col items-center justify-center p-6 sm:p-12 md:p-16 rounded-[20px] sm:rounded-[24px] cursor-pointer transition-all duration-200 border-2 border-dashed
       {isDragging
         ? 'bg-[#bfe0c5] dark:bg-[#233d28] border-black dark:border-white scale-[1.01]'
         : 'bg-[#c8e6cd] dark:bg-[#18291d] border-black/40 dark:border-[#528f5c]/50 hover:border-black dark:hover:border-[#7bc888]'}"
@@ -144,29 +144,29 @@
     />
 
     {#if isParsing}
-      <div class="flex flex-col items-center gap-4 text-black dark:text-white">
-        <Loader2 class="w-10 h-10 animate-spin text-black dark:text-white" />
-        <p class="text-lg font-medium tracking-tight">{statusMessage || 'Processing dataset...'}</p>
+      <div class="flex flex-col items-center gap-4 text-black dark:text-white text-center">
+        <Loader2 class="w-8 h-8 sm:w-10 sm:h-10 animate-spin text-black dark:text-white" />
+        <p class="text-base sm:text-lg font-medium tracking-tight">{statusMessage || 'Processing dataset...'}</p>
         <span class="text-xs font-mono text-neutral-700 dark:text-neutral-300">Executing client-side parser & IndexedDB storage...</span>
       </div>
     {:else}
       <div class="flex flex-col items-center text-center text-black dark:text-white">
-        <div class="w-16 h-16 rounded-full bg-white dark:bg-[#111111] border border-black dark:border-[#444444] flex items-center justify-center mb-5 shadow-sm">
-          <UploadCloud class="w-8 h-8 text-black dark:text-white" />
+        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white dark:bg-[#111111] border border-black dark:border-[#444444] flex items-center justify-center mb-4 sm:mb-5 shadow-sm">
+          <UploadCloud class="w-6 h-6 sm:w-8 sm:h-8 text-black dark:text-white" />
         </div>
-        <p class="text-[20px] md:text-[24px] font-medium tracking-tight text-black dark:text-white">
+        <p class="text-[18px] sm:text-[22px] md:text-[24px] font-medium tracking-tight text-black dark:text-white">
           Drop your dataset here, or <span class="underline decoration-black dark:decoration-white underline-offset-4 font-semibold">browse</span>
         </p>
-        <p class="text-sm text-neutral-700 dark:text-neutral-300 mt-2 max-w-md">
+        <p class="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 mt-2 max-w-md">
           Supports Excel (.xlsx, .xls) and CSV / TSV files up to 10,000+ rows.
         </p>
 
         <!-- Figma Pill Badges -->
-        <div class="flex items-center gap-2 mt-6">
-          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-xs font-mono font-medium">
+        <div class="flex flex-wrap items-center justify-center gap-2 mt-5 sm:mt-6">
+          <span class="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-[11px] sm:text-xs font-mono font-medium">
             <FileSpreadsheet class="w-3.5 h-3.5" /> .XLSX / .XLS
           </span>
-          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-xs font-mono font-medium">
+          <span class="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-[11px] sm:text-xs font-mono font-medium">
             <FileText class="w-3.5 h-3.5" /> .CSV / .TSV
           </span>
         </div>
@@ -176,15 +176,15 @@
 
   <!-- Error Alert -->
   {#if errorMessage}
-    <div class="w-full mt-6 flex items-center gap-3 p-4 rounded-[16px] bg-[#efd4d4] dark:bg-[#3d1f1f] border border-black dark:border-rose-500 text-black dark:text-white text-xs font-medium">
+    <div class="w-full mt-5 sm:mt-6 flex items-center gap-3 p-4 rounded-[16px] bg-[#efd4d4] dark:bg-[#3d1f1f] border border-black dark:border-rose-500 text-black dark:text-white text-xs font-medium">
       <AlertCircle class="w-4 h-4 shrink-0 text-black dark:text-rose-400" />
       <span>{errorMessage}</span>
     </div>
   {/if}
 
   <!-- 1-Click Sample Datasets (Figma Pastel Blocks) -->
-  <div class="w-full mt-16 pt-10 border-t border-[#e6e6e6] dark:border-[#222222]">
-    <div class="flex items-center justify-between mb-6">
+  <div class="w-full mt-12 sm:mt-16 pt-8 sm:pt-10 border-t border-[#e6e6e6] dark:border-[#222222]">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5 sm:mb-6">
       <div class="flex items-center gap-2">
         <Sparkles class="w-4 h-4 text-black dark:text-white" />
         <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-black dark:text-white">
@@ -194,10 +194,10 @@
       <span class="text-xs font-mono text-neutral-500 dark:text-neutral-400">1,000+ rows each</span>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
       {#each SAMPLE_DATASETS as sample}
         <div
-          class="flex flex-col justify-between p-7 rounded-[24px] border transition-all duration-200 {getSampleTheme(sample.domain)}"
+          class="flex flex-col justify-between p-5 sm:p-7 rounded-[20px] sm:rounded-[24px] border transition-all duration-200 {getSampleTheme(sample.domain)}"
         >
           <div>
             <div class="flex items-center justify-between mb-3">
@@ -212,7 +212,7 @@
                 <ShoppingBag class="w-4 h-4 text-black dark:text-white" />
               {/if}
             </div>
-            <h3 class="text-[20px] font-medium leading-tight text-black dark:text-white tracking-tight">
+            <h3 class="text-[18px] sm:text-[20px] font-medium leading-tight text-black dark:text-white tracking-tight">
               {sample.name}
             </h3>
             <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-2.5 leading-relaxed">
@@ -221,7 +221,7 @@
           </div>
 
           <!-- Figma Pill Button (Dark Mode Inverting) -->
-          <div class="mt-6 pt-4 border-t border-black/10 dark:border-white/10">
+          <div class="mt-5 sm:mt-6 pt-4 border-t border-black/10 dark:border-white/10">
             <button
               type="button"
               onclick={() => loadSample(sample)}

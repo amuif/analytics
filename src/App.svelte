@@ -44,23 +44,23 @@
 <main class="min-h-screen flex flex-col bg-white dark:bg-[#0d0d0d] text-black dark:text-white font-sans antialiased transition-colors duration-200">
   <!-- Figma Minimalist Header with Dark Mode Support -->
   <header class="border-b border-[#e6e6e6] dark:border-[#222222] bg-white dark:bg-[#121212] sticky top-0 z-40 transition-colors duration-200">
-    <div class="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2.5 sm:gap-3">
         <!-- Solid Black / White Brand Mark -->
-        <div class="w-8 h-8 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black transition-colors">
-          <Layers class="w-4 h-4" />
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black transition-colors shrink-0">
+          <Layers class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-base font-semibold tracking-tight text-black dark:text-white">Laya Studio</span>
-          <span class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-[#f7f7f5] dark:bg-[#1a1a1a] text-neutral-800 dark:text-neutral-300 border border-[#e6e6e6] dark:border-[#2c2c2c]">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <span class="text-sm sm:text-base font-semibold tracking-tight text-black dark:text-white">Laya Studio</span>
+          <span class="text-[10px] sm:text-[11px] font-mono px-2 sm:px-2.5 py-0.5 rounded-full bg-[#f7f7f5] dark:bg-[#1a1a1a] text-neutral-800 dark:text-neutral-300 border border-[#e6e6e6] dark:border-[#2c2c2c]">
             v1.0
           </span>
         </div>
       </div>
 
       <!-- Header Badges and Theme Switcher (Pills) -->
-      <div class="flex items-center gap-3">
-        <div class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#dceeb1] dark:bg-[#283518] text-black dark:text-[#dceeb1] text-xs font-mono font-medium border dark:border-[#405524]">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#dceeb1] dark:bg-[#283518] text-black dark:text-[#dceeb1] text-xs font-mono font-medium border dark:border-[#405524]">
           <ShieldCheck class="w-3.5 h-3.5 text-black dark:text-[#dceeb1]" />
           <span>Air-Gapped Client</span>
         </div>
@@ -74,7 +74,7 @@
         <button
           type="button"
           onclick={() => themeManager.toggle()}
-          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-black dark:border-[#383838] bg-[#f7f7f5] dark:bg-[#1c1c1c] hover:bg-neutral-200 dark:hover:bg-[#252525] text-xs font-mono font-semibold transition-all cursor-pointer shadow-xs"
+          class="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full border border-black dark:border-[#383838] bg-[#f7f7f5] dark:bg-[#1c1c1c] hover:bg-neutral-200 dark:hover:bg-[#252525] text-xs font-mono font-semibold transition-all cursor-pointer shadow-xs"
           title="Toggle light or dark theme"
         >
           {#if themeManager.current === 'dark'}
@@ -92,7 +92,7 @@
   <!-- Main View Area -->
   <div class="flex-1 flex flex-col">
     {#if isRestoring}
-      <div class="flex-1 flex flex-col items-center justify-center p-12">
+      <div class="flex-1 flex flex-col items-center justify-center p-8 sm:p-12">
         <div class="w-8 h-8 rounded-full border-2 border-black dark:border-white border-t-transparent animate-spin mb-4"></div>
         <p class="text-xs font-mono text-neutral-500 dark:text-neutral-400">Restoring client database & decision head...</p>
       </div>
@@ -111,10 +111,10 @@
   </div>
 
   <!-- Editorial Footer -->
-  <footer class="border-t border-[#e6e6e6] dark:border-[#222222] py-5 px-6 bg-white dark:bg-[#121212] text-xs text-neutral-500 dark:text-neutral-400 transition-colors">
-    <div class="max-w-[1280px] mx-auto flex flex-wrap items-center justify-between gap-4">
+  <footer class="border-t border-[#e6e6e6] dark:border-[#222222] py-4 sm:py-5 px-4 sm:px-6 bg-white dark:bg-[#121212] text-xs text-neutral-500 dark:text-neutral-400 transition-colors">
+    <div class="max-w-[1280px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 text-center sm:text-left">
       <span class="font-normal text-neutral-600 dark:text-neutral-300">Laya Open-Source Decision Model &bull; Non-Autoregressive System 1 Inference</span>
-      <span class="font-mono text-[11px] text-neutral-400 dark:text-neutral-500">Zero Server Calls &bull; Client-Owned Data</span>
+      <span class="font-mono text-[10px] sm:text-[11px] text-neutral-400 dark:text-neutral-500">Zero Server Calls &bull; Client-Owned Data</span>
     </div>
   </footer>
 </main>

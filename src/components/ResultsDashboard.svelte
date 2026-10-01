@@ -47,6 +47,7 @@
   // Search & Filter state
   let searchQuery = $state('');
   let selectedSeverityFilter = $state<'all' | 'critical' | 'high' | 'medium' | 'low'>('all');
+  let mobileViewMode = $state<'cards' | 'table'>('cards');
   let currentPage = $state(1);
   const pageSize = 25;
 
@@ -214,27 +215,27 @@
   });
 </script>
 
-<div class="w-full max-w-[1280px] mx-auto px-6 py-8 space-y-8">
+<div class="w-full max-w-[1280px] mx-auto px-4 sm:px-6 py-5 sm:py-8 space-y-6 sm:space-y-8">
   <!-- Top Navigation & Actions -->
   <div class="flex flex-col gap-4">
-    <div class="flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4">
+      <div class="flex flex-wrap items-center gap-3 sm:gap-4">
         <!-- Figma Pill Button (Secondary) -->
         <button
           type="button"
           onclick={onReset}
-          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-[#181818] hover:bg-neutral-50 dark:hover:bg-[#242424] text-black dark:text-white border border-black dark:border-[#383838] text-xs font-medium transition-all cursor-pointer shadow-xs"
+          class="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-white dark:bg-[#181818] hover:bg-neutral-50 dark:hover:bg-[#242424] text-black dark:text-white border border-black dark:border-[#383838] text-xs font-medium transition-all cursor-pointer shadow-xs shrink-0"
         >
           <ArrowLeft class="w-3.5 h-3.5" />
           <span>Upload Dataset</span>
         </button>
 
-        <div class="h-4 w-[1px] bg-[#e6e6e6] dark:bg-[#262626]"></div>
+        <div class="hidden sm:block h-4 w-[1px] bg-[#e6e6e6] dark:bg-[#262626]"></div>
 
         <div>
-          <h1 class="text-xl font-medium tracking-tight text-black dark:text-white flex items-center gap-2.5">
-            <span>{summary.filename}</span>
-            <span class="text-xs font-mono px-3 py-1 rounded-full bg-[#f7f7f5] dark:bg-[#1a1a1a] text-neutral-800 dark:text-neutral-300 border border-[#e6e6e6] dark:border-[#2c2c2c]">
+          <h1 class="text-base sm:text-xl font-medium tracking-tight text-black dark:text-white flex flex-wrap items-center gap-2">
+            <span class="max-w-[200px] sm:max-w-md truncate">{summary.filename}</span>
+            <span class="text-[11px] sm:text-xs font-mono px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#f7f7f5] dark:bg-[#1a1a1a] text-neutral-800 dark:text-neutral-300 border border-[#e6e6e6] dark:border-[#2c2c2c] shrink-0">
               {summary.rowCount.toLocaleString()} rows &bull; {summary.columnCount} cols
             </span>
           </h1>
@@ -246,10 +247,10 @@
         type="button"
         onclick={exportDecisionsToCSV}
         disabled={decisions.length === 0}
-        class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50 shadow-xs"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50 shadow-xs"
       >
         <Download class="w-3.5 h-3.5" />
-        <span>Export with Decisions (CSV)</span>
+        <span>Export Decisions (CSV)</span>
       </button>
     </div>
 
@@ -262,21 +263,21 @@
   </div>
 
   <!-- Oversized Pastel Story Panel (Figma Rule 2) -->
-  <div class="rounded-[24px] p-8 md:p-12 border {domainPastel}">
-    <div class="flex flex-wrap items-start justify-between gap-6 mb-6">
+  <div class="rounded-[20px] sm:rounded-[24px] p-5 sm:p-8 md:p-12 border {domainPastel}">
+    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 sm:gap-6 mb-6">
       <div>
-        <div class="flex items-center gap-2">
-          <span class="font-mono text-[12px] uppercase tracking-wider font-bold opacity-80">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-mono text-[11px] sm:text-[12px] uppercase tracking-wider font-bold opacity-80">
             Detected Business Domain
           </span>
-          <span class="inline-flex items-center px-3 py-0.5 rounded-full bg-black dark:bg-white text-white dark:text-black text-[11px] font-mono font-semibold uppercase">
+          <span class="inline-flex items-center px-2.5 sm:px-3 py-0.5 rounded-full bg-black dark:bg-white text-white dark:text-black text-[10px] sm:text-[11px] font-mono font-semibold uppercase">
             {summary.detectedDomain} &bull; {Math.round(summary.domainConfidence * 100)}% Match
           </span>
         </div>
-        <h2 class="mt-3 text-[32px] md:text-[44px] font-normal tracking-[-0.96px] leading-[1.1]">
+        <h2 class="mt-2.5 sm:mt-3 text-[26px] sm:text-[34px] md:text-[44px] font-normal tracking-[-0.96px] leading-[1.15]">
           {activePreset.name}
         </h2>
-        <p class="mt-2 text-[16px] md:text-[18px] opacity-90 max-w-2xl leading-relaxed">
+        <p class="mt-2 text-[15px] sm:text-[16px] md:text-[18px] opacity-90 max-w-2xl leading-relaxed">
           {activePreset.description}
         </p>
       </div>
@@ -286,7 +287,7 @@
         type="button"
         onclick={() => runLayaEvaluation(activePreset)}
         disabled={isEvaluating}
-        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50 shadow-xs"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50 shadow-xs shrink-0"
       >
         <RefreshCw class="w-3.5 h-3.5 {isEvaluating ? 'animate-spin' : ''}" />
         <span>{isEvaluating ? 'Evaluating...' : 'Re-Run Model'}</span>
@@ -294,12 +295,12 @@
     </div>
 
     <!-- Playbook Switcher (Pill-Only Buttons) -->
-    <div class="flex flex-wrap gap-2.5 pt-6 border-t border-black/10 dark:border-white/10">
+    <div class="flex flex-wrap gap-2 pt-4 sm:pt-6 border-t border-black/10 dark:border-white/10">
       {#each summary.suggestedPresets as preset}
         <button
           type="button"
           onclick={() => handlePresetChange(preset)}
-          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-medium transition-all cursor-pointer
+          class="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition-all cursor-pointer
             {activePreset.id === preset.id
               ? 'bg-black dark:bg-white text-white dark:text-black shadow-xs'
               : 'bg-white/80 dark:bg-black/40 hover:bg-white dark:hover:bg-black/70 text-black dark:text-white border border-black/20 dark:border-white/20'}"
@@ -311,14 +312,14 @@
     </div>
 
     <!-- Active Question Card -->
-    <div class="mt-6 p-4 bg-white/90 dark:bg-[#121212]/90 rounded-[16px] border border-black/15 dark:border-white/15 flex items-start gap-3 text-xs text-black dark:text-white">
-      <span class="font-bold uppercase tracking-wider font-mono text-[11px] shrink-0">Model Decision Question:</span>
-      <span class="italic opacity-90 text-[13px]">"{activePreset.targetQuestion}"</span>
+    <div class="mt-5 sm:mt-6 p-3.5 sm:p-4 bg-white/90 dark:bg-[#121212]/90 rounded-[14px] sm:rounded-[16px] border border-black/15 dark:border-white/15 flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-3 text-xs text-black dark:text-white">
+      <span class="font-bold uppercase tracking-wider font-mono text-[10px] sm:text-[11px] shrink-0">Model Decision Question:</span>
+      <span class="italic opacity-90 text-[12px] sm:text-[13px]">"{activePreset.targetQuestion}"</span>
     </div>
 
     <!-- Live Evaluation Progress -->
     {#if isEvaluating}
-      <div class="mt-6 space-y-2">
+      <div class="mt-5 sm:mt-6 space-y-2">
         <div class="flex items-center justify-between text-xs font-mono font-medium">
           <span>Deciding row {processedCount.toLocaleString()} of {totalCount.toLocaleString()}...</span>
           <span class="font-bold">{Math.round((processedCount / Math.max(1, totalCount)) * 100)}%</span>
@@ -334,39 +335,39 @@
   </div>
 
   <!-- KPI Summary Cards (Figma Card Geometry) -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    <div class="bg-white dark:bg-[#141414] border border-[#e6e6e6] dark:border-[#262626] rounded-[20px] p-6 hover:border-black dark:hover:border-neutral-500 transition-colors">
-      <span class="text-xs font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Total Records</span>
-      <div class="text-[36px] font-normal tracking-tight text-black dark:text-white mt-2 leading-none">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div class="bg-white dark:bg-[#141414] border border-[#e6e6e6] dark:border-[#262626] rounded-[18px] sm:rounded-[20px] p-4 sm:p-6 hover:border-black dark:hover:border-neutral-500 transition-colors">
+      <span class="text-[10px] sm:text-xs font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Total Records</span>
+      <div class="text-[26px] sm:text-[34px] md:text-[36px] font-normal tracking-tight text-black dark:text-white mt-1 sm:mt-2 leading-none">
         {summary.rowCount.toLocaleString()}
       </div>
-      <span class="text-[11px] font-mono text-neutral-600 dark:text-neutral-400 mt-2 block">100% Ingested Locally</span>
+      <span class="text-[10px] sm:text-[11px] font-mono text-neutral-600 dark:text-neutral-400 mt-2 block">100% Ingested Locally</span>
     </div>
 
-    <div class="bg-white dark:bg-[#141414] border border-[#e6e6e6] dark:border-[#262626] rounded-[20px] p-6 hover:border-black dark:hover:border-neutral-500 transition-colors">
-      <span class="text-xs font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Action / Watch</span>
-      <div class="text-[36px] font-normal tracking-tight text-black dark:text-white mt-2 leading-none">
+    <div class="bg-white dark:bg-[#141414] border border-[#e6e6e6] dark:border-[#262626] rounded-[18px] sm:rounded-[20px] p-4 sm:p-6 hover:border-black dark:hover:border-neutral-500 transition-colors">
+      <span class="text-[10px] sm:text-xs font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Action / Watch</span>
+      <div class="text-[26px] sm:text-[34px] md:text-[36px] font-normal tracking-tight text-black dark:text-white mt-1 sm:mt-2 leading-none">
         {criticalCount.toLocaleString()}
       </div>
-      <span class="text-[11px] font-mono text-neutral-600 dark:text-neutral-400 mt-2 block">
+      <span class="text-[10px] sm:text-[11px] font-mono text-neutral-600 dark:text-neutral-400 mt-2 block truncate">
         {Math.round((criticalCount / Math.max(1, summary.rowCount)) * 100)}% of total dataset
       </span>
     </div>
 
-    <div class="bg-white dark:bg-[#141414] border border-[#e6e6e6] dark:border-[#262626] rounded-[20px] p-6 hover:border-black dark:hover:border-neutral-500 transition-colors">
-      <span class="text-xs font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Mean Confidence</span>
-      <div class="text-[36px] font-normal tracking-tight text-black dark:text-white mt-2 leading-none">
+    <div class="bg-white dark:bg-[#141414] border border-[#e6e6e6] dark:border-[#262626] rounded-[18px] sm:rounded-[20px] p-4 sm:p-6 hover:border-black dark:hover:border-neutral-500 transition-colors">
+      <span class="text-[10px] sm:text-xs font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Mean Confidence</span>
+      <div class="text-[26px] sm:text-[34px] md:text-[36px] font-normal tracking-tight text-black dark:text-white mt-1 sm:mt-2 leading-none">
         {avgConfidence}%
       </div>
-      <span class="text-[11px] font-mono text-neutral-600 dark:text-neutral-400 mt-2 block">Calibrated Decision Head</span>
+      <span class="text-[10px] sm:text-[11px] font-mono text-neutral-600 dark:text-neutral-400 mt-2 block">Calibrated Decision Head</span>
     </div>
 
-    <div class="bg-white dark:bg-[#141414] border border-[#e6e6e6] dark:border-[#262626] rounded-[20px] p-6 hover:border-black dark:hover:border-neutral-500 transition-colors">
-      <span class="text-xs font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Throughput</span>
-      <div class="text-[36px] font-normal tracking-tight text-black dark:text-white mt-2 leading-none">
+    <div class="bg-white dark:bg-[#141414] border border-[#e6e6e6] dark:border-[#262626] rounded-[18px] sm:rounded-[20px] p-4 sm:p-6 hover:border-black dark:hover:border-neutral-500 transition-colors">
+      <span class="text-[10px] sm:text-xs font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Throughput</span>
+      <div class="text-[26px] sm:text-[34px] md:text-[36px] font-normal tracking-tight text-black dark:text-white mt-1 sm:mt-2 leading-none">
         {evaluationDurationMs > 0 ? Math.round((summary.rowCount / (evaluationDurationMs / 1000))) : '2,500+'}
       </div>
-      <span class="text-[11px] font-mono text-neutral-600 dark:text-neutral-400 mt-2 block">rows / second</span>
+      <span class="text-[10px] sm:text-[11px] font-mono text-neutral-600 dark:text-neutral-400 mt-2 block">rows / second</span>
     </div>
   </div>
 
@@ -387,31 +388,49 @@
     </div>
   {/if}
 
-  <!-- Decision Matrix Table (Figma Monochrome Editorial Style) -->
-  <div class="bg-white dark:bg-[#141414] border border-[#e6e6e6] dark:border-[#262626] rounded-[24px] p-8 shadow-xs">
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+  <!-- Decision Matrix Table & Mobile Cards (Figma Monochrome Editorial Style) -->
+  <div class="bg-white dark:bg-[#141414] border border-[#e6e6e6] dark:border-[#262626] rounded-[20px] sm:rounded-[24px] p-4 sm:p-6 md:p-8 shadow-xs">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       <div>
-        <h2 class="text-[20px] font-medium tracking-tight text-black dark:text-white">
+        <h2 class="text-[18px] sm:text-[20px] font-medium tracking-tight text-black dark:text-white">
           Decision Matrix & Row Triage
         </h2>
         <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Each row evaluated via Laya with calibrated confidence and attribute signals.</p>
       </div>
 
-      <!-- Filters & Search -->
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="relative">
+      <!-- Filters & Search & Mobile Mode Switcher -->
+      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+        <!-- View Toggle on Mobile (<640px) -->
+        <div class="inline-flex sm:hidden p-0.5 rounded-full bg-[#f7f7f5] dark:bg-[#1c1c1c] border border-[#e6e6e6] dark:border-[#333333]">
+          <button
+            type="button"
+            onclick={() => mobileViewMode = 'cards'}
+            class="px-3 py-1 rounded-full text-[11px] font-mono font-medium transition-all {mobileViewMode === 'cards' ? 'bg-black dark:bg-white text-white dark:text-black shadow-xs' : 'text-neutral-500'}"
+          >
+            Cards
+          </button>
+          <button
+            type="button"
+            onclick={() => mobileViewMode = 'table'}
+            class="px-3 py-1 rounded-full text-[11px] font-mono font-medium transition-all {mobileViewMode === 'table' ? 'bg-black dark:bg-white text-white dark:text-black shadow-xs' : 'text-neutral-500'}"
+          >
+            Table
+          </button>
+        </div>
+
+        <div class="relative flex-1 sm:flex-initial">
           <Search class="w-3.5 h-3.5 text-neutral-400 absolute left-3.5 top-3" />
           <input
             type="text"
             placeholder="Search rows..."
             bind:value={searchQuery}
-            class="pl-9 pr-4 py-2 rounded-full bg-[#f7f7f5] dark:bg-[#1c1c1c] border border-[#e6e6e6] dark:border-[#333333] text-xs text-black dark:text-white placeholder-neutral-400 focus:outline-none focus:border-black dark:focus:border-white w-48 sm:w-60 font-sans"
+            class="w-full sm:w-56 pl-9 pr-4 py-2 rounded-full bg-[#f7f7f5] dark:bg-[#1c1c1c] border border-[#e6e6e6] dark:border-[#333333] text-xs text-black dark:text-white placeholder-neutral-400 focus:outline-none focus:border-black dark:focus:border-white font-sans"
           />
         </div>
 
         <select
           bind:value={selectedSeverityFilter}
-          class="px-4 py-2 rounded-full bg-[#f7f7f5] dark:bg-[#1c1c1c] border border-[#e6e6e6] dark:border-[#333333] text-xs text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white cursor-pointer font-sans"
+          class="px-3 sm:px-4 py-2 rounded-full bg-[#f7f7f5] dark:bg-[#1c1c1c] border border-[#e6e6e6] dark:border-[#333333] text-xs text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white cursor-pointer font-sans"
         >
           <option value="all">All Tiers ({enrichedRows.length})</option>
           <option value="critical">Critical / PIP</option>
@@ -422,8 +441,81 @@
       </div>
     </div>
 
-    <!-- Table -->
-    <div class="w-full overflow-x-auto rounded-[16px] border border-[#e6e6e6] dark:border-[#262626]">
+    <!-- Mobile Card View (< 640px) -->
+    <div class="{mobileViewMode === 'cards' ? 'block sm:hidden' : 'hidden'} space-y-3">
+      {#if paginatedRows.length === 0}
+        <div class="py-10 text-center text-xs text-neutral-400">
+          No matching records found.
+        </div>
+      {:else}
+        {#each paginatedRows as item (item.raw._rowIndex)}
+          <div class="p-4 rounded-[16px] bg-[#fbfbf9] dark:bg-[#181818] border border-[#e6e6e6] dark:border-[#2a2a2a] space-y-2.5">
+            <!-- Header: Row number, Identifier, and Decision Badge -->
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#ecece8] dark:bg-[#242424] text-neutral-600 dark:text-neutral-400 font-medium shrink-0">
+                  #{item.raw._rowIndex + 1}
+                </span>
+                <span class="text-sm font-semibold text-black dark:text-white tracking-tight">
+                  {item.raw[summary.headers[0]] || `Row ${item.raw._rowIndex + 1}`}
+                </span>
+              </div>
+
+              {#if item.decision}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0
+                  {item.decision.severity === 'critical' ? 'bg-[#efd4d4] dark:bg-[#3d1e1e] text-black dark:text-[#efd4d4] border border-black dark:border-[#efd4d4]/40' :
+                   item.decision.severity === 'high' ? 'bg-[#f3c9b6] dark:bg-[#3a2016] text-black dark:text-[#f3c9b6] border border-black/30 dark:border-[#f3c9b6]/40' :
+                   item.decision.severity === 'medium' ? 'bg-[#c5b0f4] dark:bg-[#281b40] text-black dark:text-[#c5b0f4] border border-black/10 dark:border-[#c5b0f4]/40' :
+                   'bg-[#dceeb1] dark:bg-[#203114] text-black dark:text-[#dceeb1] border border-black/10 dark:border-[#dceeb1]/40'}">
+                  {item.decision.choice || (item.decision.score ? `Score: ${item.decision.score}/5` : (item.decision.boolean ? 'Flagged' : 'Normal'))}
+                </span>
+              {:else}
+                <span class="text-neutral-400 text-xs italic">Pending...</span>
+              {/if}
+            </div>
+
+            <!-- Secondary attribute if present -->
+            {#if summary.headers.length > 1 && item.raw[summary.headers[1]]}
+              <div class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                <span class="font-medium text-neutral-700 dark:text-neutral-300">{summary.headers[1]}:</span> {item.raw[summary.headers[1]]}
+              </div>
+            {/if}
+
+            <!-- Confidence Bar & Rationale Box -->
+            {#if item.decision}
+              <div class="flex items-center gap-3 pt-1">
+                <div class="flex items-center gap-1.5 font-mono text-[11px]">
+                  <span class="text-neutral-500 dark:text-neutral-400">Conf:</span>
+                  <span class="font-bold text-black dark:text-white">{Math.round(item.decision.confidence * 100)}%</span>
+                </div>
+                <div class="flex-1 h-1.5 bg-[#e6e6e6] dark:bg-[#2c2c2c] rounded-full overflow-hidden">
+                  <div class="h-full bg-black dark:bg-white" style="width: {item.decision.confidence * 100}%"></div>
+                </div>
+              </div>
+
+              <div class="text-[11px] text-neutral-700 dark:text-neutral-300 bg-white dark:bg-[#121212] p-2.5 rounded-[10px] border border-[#e6e6e6] dark:border-[#262626] leading-relaxed">
+                {item.decision.reasoningSummary}
+              </div>
+            {/if}
+
+            <!-- Action: Inspect Button -->
+            <div class="pt-1 flex justify-end">
+              <button
+                type="button"
+                onclick={() => inspectingRowIndex = item.raw._rowIndex}
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-black dark:border-white text-black dark:text-white text-[11px] font-medium hover:bg-neutral-100 dark:hover:bg-[#252525] cursor-pointer"
+              >
+                <Eye class="w-3 h-3" />
+                <span>Inspect Attributes</span>
+              </button>
+            </div>
+          </div>
+        {/each}
+      {/if}
+    </div>
+
+    <!-- Table View (Desktop & Tablet default, or Mobile override) -->
+    <div class="{mobileViewMode === 'table' ? 'block' : 'hidden sm:block'} w-full overflow-x-auto rounded-[16px] border border-[#e6e6e6] dark:border-[#262626]">
       <table class="w-full text-left text-xs text-black dark:text-white">
         <thead class="bg-[#f7f7f5] dark:bg-[#1a1a1a] text-[11px] uppercase tracking-wider text-neutral-600 dark:text-neutral-400 font-mono border-b border-[#e6e6e6] dark:border-[#262626]">
           <tr>
@@ -500,8 +592,8 @@
     </div>
 
     <!-- Pagination Controls (Pills) -->
-    <div class="flex items-center justify-between mt-6 text-xs text-neutral-600 dark:text-neutral-400">
-      <span>
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-6 text-xs text-neutral-600 dark:text-neutral-400">
+      <span class="text-center sm:text-left">
         Showing {filteredRows.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to {Math.min(currentPage * pageSize, filteredRows.length)} of {filteredRows.length.toLocaleString()} records
       </span>
       <div class="flex items-center gap-2">
@@ -527,15 +619,15 @@
   </div>
 </div>
 
-<!-- Row Detail Inspection Drawer -->
+<!-- Row Detail Inspection Drawer (Bottom sheet on mobile, slide drawer on tablet/desktop) -->
 {#if inspectedRecord}
-  <div class="fixed inset-0 z-50 flex items-center justify-end bg-black/50 backdrop-blur-xs animate-fade-in">
-    <div class="w-full max-w-lg h-full bg-white dark:bg-[#141414] border-l border-[#e6e6e6] dark:border-[#262626] p-8 flex flex-col justify-between overflow-y-auto shadow-2xl">
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end bg-black/50 backdrop-blur-xs animate-fade-in">
+    <div class="w-full sm:max-w-lg max-h-[92vh] sm:max-h-full sm:h-full bg-white dark:bg-[#141414] border-t sm:border-t-0 sm:border-l border-[#e6e6e6] dark:border-[#262626] rounded-t-[24px] sm:rounded-none p-5 sm:p-8 flex flex-col justify-between overflow-y-auto shadow-2xl">
       <div>
-        <div class="flex items-center justify-between pb-5 border-b border-[#e6e6e6] dark:border-[#262626]">
+        <div class="flex items-center justify-between pb-4 sm:pb-5 border-b border-[#e6e6e6] dark:border-[#262626]">
           <div>
             <span class="text-xs font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-semibold">Row #{inspectedRecord.raw._rowIndex + 1} Profile</span>
-            <h3 class="text-[20px] font-medium text-black dark:text-white mt-0.5 tracking-tight">
+            <h3 class="text-[18px] sm:text-[20px] font-medium text-black dark:text-white mt-0.5 tracking-tight">
               {inspectedRecord.raw[summary.headers[0]] || 'Detailed Inspection'}
             </h3>
           </div>
@@ -550,9 +642,9 @@
 
         <!-- Decision Box in Drawer -->
         {#if inspectedRecord.decision}
-          <div class="my-6 p-6 rounded-[20px] bg-[#f7f7f5] dark:bg-[#1a1a1a] border border-[#e6e6e6] dark:border-[#2c2c2c]">
-            <span class="text-[11px] font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold">Laya Model Decision</span>
-            <div class="text-[22px] font-medium text-black dark:text-white mt-1 flex items-center gap-2.5">
+          <div class="my-5 sm:my-6 p-4 sm:p-6 rounded-[18px] sm:rounded-[20px] bg-[#f7f7f5] dark:bg-[#1a1a1a] border border-[#e6e6e6] dark:border-[#2c2c2c]">
+            <span class="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold">Laya Model Decision</span>
+            <div class="text-[19px] sm:text-[22px] font-medium text-black dark:text-white mt-1 flex flex-wrap items-center gap-2 sm:gap-2.5">
               <span>{inspectedRecord.decision.choice || `Score: ${inspectedRecord.decision.score}`}</span>
               <span class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-black dark:bg-white text-white dark:text-black font-semibold">
                 {Math.round(inspectedRecord.decision.confidence * 100)}% Confidence
@@ -567,9 +659,9 @@
 
         <!-- All Row Fields -->
         <h4 class="text-xs font-mono uppercase tracking-wider text-black dark:text-white font-bold mb-3">Attributes</h4>
-        <div class="space-y-2">
+        <div class="space-y-2 max-h-[40vh] sm:max-h-[50vh] overflow-y-auto pr-1">
           {#each summary.headers as header}
-            <div class="flex items-center justify-between p-3 rounded-[12px] bg-[#f7f7f5] dark:bg-[#1a1a1a] border border-[#f1f1f1] dark:border-[#262626] text-xs">
+            <div class="flex items-center justify-between p-2.5 sm:p-3 rounded-[12px] bg-[#f7f7f5] dark:bg-[#1a1a1a] border border-[#f1f1f1] dark:border-[#262626] text-xs">
               <span class="text-neutral-600 dark:text-neutral-400 font-medium">{header}</span>
               <span class="text-black dark:text-white font-mono font-medium text-right max-w-xs truncate">{inspectedRecord.raw[header] ?? '—'}</span>
             </div>
@@ -577,7 +669,7 @@
         </div>
       </div>
 
-      <div class="pt-6 border-t border-[#e6e6e6] dark:border-[#262626] mt-6">
+      <div class="pt-5 sm:pt-6 border-t border-[#e6e6e6] dark:border-[#262626] mt-5 sm:mt-6">
         <button
           type="button"
           onclick={() => inspectingRowIndex = null}

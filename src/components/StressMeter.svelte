@@ -43,30 +43,30 @@
   });
 </script>
 
-<div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 bg-[#f7f7f5] dark:bg-[#161616] border border-[#e6e6e6] dark:border-[#262626] rounded-full text-xs font-mono text-black dark:text-white shadow-xs transition-colors">
+<div class="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-5 py-2.5 sm:py-3 bg-[#f7f7f5] dark:bg-[#161616] border border-[#e6e6e6] dark:border-[#262626] rounded-[20px] sm:rounded-full text-xs font-mono text-black dark:text-white shadow-xs transition-colors">
   <!-- Hardware Mode & Privacy -->
-  <div class="flex items-center gap-3">
+  <div class="flex flex-wrap items-center gap-2 sm:gap-3">
     <div class="flex items-center gap-1.5 font-medium">
       <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black dark:bg-white text-white dark:text-black text-[11px] font-semibold transition-colors">
         <Zap class="w-3 h-3 text-[#dceeb1] dark:text-[#1f1d3d]" />
         {telemetry.hardwareMode}
       </span>
     </div>
-    <div class="h-3 w-[1px] bg-[#e6e6e6] dark:bg-[#2c2c2c]"></div>
+    <div class="hidden sm:block h-3 w-[1px] bg-[#e6e6e6] dark:bg-[#2c2c2c]"></div>
     <div class="flex items-center gap-1.5 text-neutral-700 dark:text-neutral-300 font-sans text-xs">
-      <ShieldCheck class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-      <span>100% Client Privacy (0 Network Calls)</span>
+      <ShieldCheck class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+      <span class="text-[11px] sm:text-xs">Air-Gapped (0 Network Calls)</span>
     </div>
   </div>
 
   <!-- Telemetry Metrics -->
-  <div class="flex items-center gap-4">
+  <div class="flex flex-wrap items-center gap-2.5 sm:gap-4">
     <!-- JS Heap Memory -->
     <div class="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400" title="Active V8 JavaScript Heap usage">
       <HardDrive class="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500" />
       <span>Heap:</span>
       <span class="font-bold text-black dark:text-white">{telemetry.memoryUsedMB} MB</span>
-      <span class="text-neutral-400 dark:text-neutral-500">({telemetry.heapUsagePercent}%)</span>
+      <span class="text-neutral-400 dark:text-neutral-500 text-[10px] sm:text-xs">({telemetry.heapUsagePercent}%)</span>
     </div>
 
     <!-- FPS -->
@@ -78,7 +78,7 @@
 
     <!-- Render Latency -->
     {#if renderLatencyMs > 0}
-      <div class="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
+      <div class="hidden sm:flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
         <Activity class="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500" />
         <span>Latency:</span>
         <span class="font-bold text-black dark:text-white">{Math.round(renderLatencyMs)}ms</span>
@@ -86,7 +86,7 @@
     {/if}
 
     <!-- Overall Stress Status Badge -->
-    <div class="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold {stressBadge.bg}">
+    <div class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold {stressBadge.bg}">
       <span class="w-1.5 h-1.5 rounded-full bg-black dark:bg-white"></span>
       <span>{stressBadge.text}</span>
     </div>
