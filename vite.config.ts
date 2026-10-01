@@ -6,6 +6,9 @@ import tailwindcss from '@tailwindcss/vite';
 const host = process.env.TAURI_DEV_HOST;
 
 export default defineConfig({
+  worker: {
+    format: 'es',
+  },
   plugins: [svelte(), tailwindcss()],
   clearScreen: false,
   server: {
@@ -21,6 +24,16 @@ export default defineConfig({
       : undefined,
     watch: {
       ignored: ['**/src-tauri/**'],
+    },
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/health': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
     },
   },
 });
