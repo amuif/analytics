@@ -109,12 +109,4 @@
       </div>
     {/if}
   </div>
-
-  <!-- Editorial Footer -->
-  <footer class="border-t border-[#e6e6e6] dark:border-[#222222] py-4 sm:py-5 px-4 sm:px-6 bg-white dark:bg-[#121212] text-xs text-neutral-500 dark:text-neutral-400 transition-colors">
-    <div class="max-w-[1280px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 text-center sm:text-left">
-      <span class="font-normal text-neutral-600 dark:text-neutral-300">Laya Open-Source Decision Model &bull; Non-Autoregressive System 1 Inference</span>
-      <span class="font-mono text-[10px] sm:text-[11px] text-neutral-400 dark:text-neutral-500">Zero Server Calls &bull; Client-Owned Data</span>
-    </div>
-  </footer>
 </main>
