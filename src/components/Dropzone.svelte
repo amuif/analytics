@@ -93,11 +93,19 @@
 </script>
 
 <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
-  <!-- Figma Signature Magenta Promo Accent -->
-  <div class="flex justify-center mb-4 sm:mb-6">
+  <!-- Figma Promo & Download Badges -->
+  <div class="flex flex-wrap items-center justify-center gap-2 mb-4 sm:mb-6">
     <div class="inline-flex items-center px-3.5 sm:px-4 py-1.5 rounded-full bg-[#ff3d8b] text-white text-[11px] sm:text-[12px] font-medium shadow-sm text-center">
       <span>100% Client-Side Privacy &bull; Zero Server Network Calls</span>
     </div>
+    <a
+      href="/downloads/Decide.exe"
+      download="Decide.exe"
+      class="inline-flex items-center px-3.5 sm:px-4 py-1.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-[11px] sm:text-[12px] font-mono font-semibold transition-all shadow-sm text-center"
+      title="Download standalone Windows desktop executable (21.4 MB)"
+    >
+      <span>Download Desktop App (.exe)</span>
+    </a>
   </div>
 
   <!-- Editorial Headline in Figma Typography Scale -->

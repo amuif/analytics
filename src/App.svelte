@@ -56,9 +56,15 @@
 
       <!-- Header Badges and Theme Switcher (Pure Typography) -->
       <div class="flex items-center gap-2 sm:gap-3">
-        <div class="hidden md:inline-flex items-center px-3.5 py-1 rounded-full bg-white dark:bg-[#181818] border border-black dark:border-[#333333] text-black dark:text-white text-xs font-mono font-medium">
-          <span>Desktop & Web</span>
-        </div>
+        <!-- Download Desktop App Pill -->
+        <a
+          href="/downloads/Decide.exe"
+          download="Decide.exe"
+          class="inline-flex items-center px-3 sm:px-3.5 py-1.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-mono font-semibold transition-all shadow-xs"
+          title="Download standalone Windows desktop executable (21.4 MB)"
+        >
+          <span>Download App (.exe)</span>
+        </a>
 
         <!-- Figma Dark / Light Mode Toggle Pill -->
         <button
