@@ -44,10 +44,10 @@
       <div class="flex items-center gap-2.5 sm:gap-3">
         <!-- Solid Black / White Monogram Brand Mark -->
         <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black transition-colors shrink-0">
-          <span class="text-xs sm:text-sm font-bold font-mono leading-none">L</span>
+          <span class="text-xs sm:text-sm font-bold font-mono leading-none">D</span>
         </div>
         <div class="flex items-center gap-1.5 sm:gap-2">
-          <span class="text-sm sm:text-base font-semibold tracking-tight text-black dark:text-white">Laya Studio</span>
+          <span class="text-sm sm:text-base font-semibold tracking-tight text-black dark:text-white">Decide</span>
           <span class="text-[10px] sm:text-[11px] font-mono px-2 sm:px-2.5 py-0.5 rounded-full bg-[#f7f7f5] dark:bg-[#1a1a1a] text-neutral-800 dark:text-neutral-300 border border-[#e6e6e6] dark:border-[#2c2c2c]">
             v1.0
           </span>

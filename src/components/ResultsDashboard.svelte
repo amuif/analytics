@@ -161,7 +161,7 @@
   function exportDecisionsToCSV() {
     if (decisions.length === 0) return;
 
-    const headers = [...summary.headers, 'Laya_Decision', 'Laya_Score', 'Laya_Confidence', 'Laya_Severity', 'Decision_Reasoning'];
+    const headers = [...summary.headers, 'Decision', 'Decision_Score', 'Decision_Confidence', 'Severity', 'Decision_Rationale'];
     const lines = [headers.join(',')];
 
     for (let i = 0; i < rows.length; i++) {
@@ -187,7 +187,7 @@
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `${summary.filename.replace(/\.[^/.]+$/, '')}_laya_decisions.csv`);
+    link.setAttribute('download', `${summary.filename.replace(/\.[^/.]+$/, '')}_decide_triage.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -371,7 +371,7 @@
         <h2 class="text-[18px] sm:text-[20px] font-medium tracking-tight text-black dark:text-white">
           Decision Matrix & Row Triage
         </h2>
-        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Each row evaluated via Laya with calibrated confidence and attribute signals.</p>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Each row evaluated via Decide with calibrated confidence and attribute signals.</p>
       </div>
 
       <!-- Filters & Search & Mobile Mode Switcher -->
@@ -495,7 +495,7 @@
           <tr>
             <th class="py-3.5 px-4 font-semibold">#</th>
             <th class="py-3.5 px-4 font-semibold">Identifier</th>
-            <th class="py-3.5 px-4 font-semibold">Laya Decision</th>
+            <th class="py-3.5 px-4 font-semibold">Decision</th>
             <th class="py-3.5 px-4 font-semibold">Confidence</th>
             <th class="py-3.5 px-4 font-semibold">Rationale</th>
             <th class="py-3.5 px-4 text-right font-semibold">Inspect</th>
@@ -617,7 +617,7 @@
         <!-- Decision Box in Drawer -->
         {#if inspectedRecord.decision}
           <div class="my-5 sm:my-6 p-4 sm:p-6 rounded-[18px] sm:rounded-[20px] bg-[#f7f7f5] dark:bg-[#1a1a1a] border border-[#e6e6e6] dark:border-[#2c2c2c]">
-            <span class="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold">Laya Model Decision</span>
+            <span class="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-bold">Model Decision</span>
             <div class="text-[19px] sm:text-[22px] font-medium text-black dark:text-white mt-1 flex flex-wrap items-center gap-2 sm:gap-2.5">
               <span>{inspectedRecord.decision.choice || `Score: ${inspectedRecord.decision.score}`}</span>
               <span class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-black dark:bg-white text-white dark:text-black font-semibold">

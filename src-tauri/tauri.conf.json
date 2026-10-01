@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "LayaAnalytics",
+  "productName": "Decide",
   "version": "0.1.0",
-  "identifier": "com.laya.analytics",
+  "identifier": "com.decide.studio",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Laya Analytics & Decision Studio",
+        "title": "Decide — Client-Side Decision Studio",
         "width": 1200,
         "height": 800,
         "minWidth": 900,
