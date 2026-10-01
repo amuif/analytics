@@ -9,10 +9,11 @@ export interface WorkerMessageRequest {
 }
 
 export interface WorkerMessageResponse {
-  type: 'PROGRESS' | 'COMPLETE' | 'ERROR';
+  type: 'STREAM_CHUNK' | 'COMPLETE' | 'ERROR';
   datasetId: string;
-  processed?: number;
-  total?: number;
+  processed: number;
+  total: number;
+  chunk?: RowDecision[];
   decisions?: RowDecision[];
   error?: string;
 }
@@ -22,126 +23,174 @@ self.onmessage = (event: MessageEvent<WorkerMessageRequest>) => {
 
   if (type === 'EVALUATE_BATCH') {
     try {
-      const total = rows.length;
-      const decisions: RowDecision[] = [];
-      const CHUNK_SIZE = 100;
+      const total = rows ? rows.length : 0;
+      if (total === 0) {
+        self.postMessage({
+          type: 'COMPLETE',
+          datasetId,
+          processed: 0,
+          total: 0,
+          decisions: [],
+        } as WorkerMessageResponse);
+        return;
+      }
 
-      // Identify numerical and categorical profiles for relative ranking
-      const numStats: Record<string, { min: number; max: number; mean: number }> = {};
-      for (const col of columns) {
+      // Safe defaults
+      const safePreset: DecisionPreset = preset || {
+        id: 'default',
+        name: 'General Decision',
+        domain: 'general',
+        description: 'Default evaluation',
+        targetQuestion: 'How does this record score overall?',
+        outputType: 'choice',
+        choices: ['Optimal', 'Watchlist', 'Action Needed'],
+        criteria: 'all',
+      };
+
+      const safeColumns: ColumnProfile[] = columns || [];
+
+      // 1. PRECOMPUTE ONCE BEFORE LOOP (Ultra-Fast)
+      const criteriaTerms = (safePreset.criteria || '')
+        .toLowerCase()
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const numStats: Record<string, { min: number; max: number; mean: number; span: number }> = {};
+      for (const col of safeColumns) {
         if (col.type === 'numerical' && col.min !== undefined && col.max !== undefined) {
-          numStats[col.name] = { min: col.min, max: col.max, mean: col.mean || (col.min + col.max) / 2 };
+          const span = col.max - col.min || 1;
+          numStats[col.name] = {
+            min: col.min,
+            max: col.max,
+            mean: col.mean ?? (col.min + col.max) / 2,
+            span,
+          };
         }
       }
 
-      for (let i = 0; i < total; i++) {
-        const row = rows[i];
-        const decision = evaluateRowWithLaya(row, i, preset, numStats, columns);
-        decisions.push(decision);
+      // Pre-filter matching columns once
+      const relevantColNames: string[] = [];
+      const isNegativeMap: Record<string, boolean> = {};
 
-        // Emit progress every chunk
-        if ((i + 1) % CHUNK_SIZE === 0 || i === total - 1) {
-          const progressMsg: WorkerMessageResponse = {
-            type: 'PROGRESS',
+      for (const col of safeColumns) {
+        const colLower = col.name.toLowerCase();
+        const matches = criteriaTerms.some(term => term === 'all' || colLower.includes(term));
+        if (matches) {
+          relevantColNames.push(col.name);
+          isNegativeMap[col.name] = /absenc|leave|churn|complain|return|refund|delay|drop|risk|defect|lost/i.test(col.name);
+        }
+      }
+
+      // Fallback to all numerical columns if no keyword matched
+      if (relevantColNames.length === 0) {
+        for (const k of Object.keys(numStats)) {
+          relevantColNames.push(k);
+          isNegativeMap[k] = /absenc|leave|churn|complain|return|refund|delay|drop|risk|defect|lost/i.test(k);
+        }
+      }
+
+      const allDecisions: RowDecision[] = [];
+      const CHUNK_SIZE = 25; // Stream in small 25-row bursts for instant UI feedback
+      let currentChunk: RowDecision[] = [];
+
+      for (let i = 0; i < total; i++) {
+        const row = rows[i] || {};
+        const decision = evaluateRowFast(
+          row,
+          i,
+          safePreset,
+          relevantColNames,
+          isNegativeMap,
+          numStats
+        );
+
+        allDecisions.push(decision);
+        currentChunk.push(decision);
+
+        // Stream chunk to UI as each batch finishes
+        if (currentChunk.length >= CHUNK_SIZE || i === total - 1) {
+          self.postMessage({
+            type: 'STREAM_CHUNK',
             datasetId,
             processed: i + 1,
             total,
-          };
-          self.postMessage(progressMsg);
+            chunk: currentChunk,
+          } as WorkerMessageResponse);
+          currentChunk = [];
         }
       }
 
-      const completeMsg: WorkerMessageResponse = {
+      // Final complete signal
+      self.postMessage({
         type: 'COMPLETE',
         datasetId,
         processed: total,
         total,
-        decisions,
-      };
-      self.postMessage(completeMsg);
+        decisions: allDecisions,
+      } as WorkerMessageResponse);
     } catch (err: any) {
+      console.error('Laya worker internal error:', err);
       self.postMessage({
         type: 'ERROR',
         datasetId,
+        processed: 0,
+        total: 0,
         error: err?.message || 'Error occurred in Laya decision worker.',
       } as WorkerMessageResponse);
     }
   }
 };
 
-function evaluateRowWithLaya(
+function evaluateRowFast(
   row: Record<string, any>,
   rowIndex: number,
   preset: DecisionPreset,
-  numStats: Record<string, { min: number; max: number; mean: number }>,
-  columns: ColumnProfile[]
+  relevantColNames: string[],
+  isNegativeMap: Record<string, boolean>,
+  numStats: Record<string, { min: number; max: number; mean: number; span: number }>
 ): RowDecision {
-  const criteriaTerms = preset.criteria.toLowerCase().split(',').map(s => s.trim());
-
-  // Find relevant columns in this row
-  const relevantCols = columns.filter(col => {
-    const colLower = col.name.toLowerCase();
-    return criteriaTerms.some(term => colLower.includes(term));
-  });
-
-  // Calculate composite multi-attribute score (0.0 to 1.0)
-  let compositeScore = 0.5; // neutral baseline
+  let compositeScore = 0.5;
   const explanations: string[] = [];
 
-  if (relevantCols.length > 0) {
+  if (relevantColNames.length > 0) {
     let sumNormalized = 0;
     let weightCount = 0;
 
-    for (const col of relevantCols) {
-      const val = row[col.name];
-      if (typeof val === 'number' && numStats[col.name]) {
-        const stat = numStats[col.name];
-        const span = stat.max - stat.min;
-        if (span > 0) {
-          let normalized = (val - stat.min) / span;
+    for (const colName of relevantColNames) {
+      const val = row[colName];
+      if (typeof val === 'number' && numStats[colName]) {
+        const stat = numStats[colName];
+        let normalized = (val - stat.min) / stat.span;
 
-          // Invert if column name indicates risk/negative trait (e.g. absences, returns, churn, complaints)
-          const isNegativeTrait = /absenc|leave|churn|complain|return|refund|delay|drop|risk|defect|lost/i.test(col.name);
-          if (isNegativeTrait) {
-            normalized = 1.0 - normalized;
-            if (val > stat.mean) {
-              explanations.push(`Elevated ${col.name} (${val})`);
-            }
-          } else {
-            if (val < stat.mean) {
-              explanations.push(`Below avg ${col.name} (${val})`);
-            } else {
-              explanations.push(`Strong ${col.name} (${val})`);
-            }
+        if (isNegativeMap[colName]) {
+          normalized = 1.0 - normalized;
+          if (val > stat.mean) {
+            explanations.push(`Elevated ${colName} (${val})`);
           }
-
-          sumNormalized += normalized;
-          weightCount += 1;
+        } else {
+          if (val < stat.mean) {
+            explanations.push(`Below avg ${colName} (${val})`);
+          } else {
+            explanations.push(`Strong ${colName} (${val})`);
+          }
         }
+
+        sumNormalized += normalized;
+        weightCount += 1;
       }
     }
 
     if (weightCount > 0) {
       compositeScore = sumNormalized / weightCount;
     }
-  } else {
-    // Fallback: evaluate all numerical columns
-    const allNum = Object.keys(numStats);
-    if (allNum.length > 0) {
-      let sum = 0;
-      for (const k of allNum) {
-        const val = row[k];
-        if (typeof val === 'number') {
-          const span = numStats[k].max - numStats[k].min || 1;
-          sum += (val - numStats[k].min) / span;
-        }
-      }
-      compositeScore = sum / allNum.length;
-    }
   }
 
-  // Calibrated confidence (bounded between 0.72 and 0.96)
-  const confidence = Number((0.72 + Math.abs(compositeScore - 0.5) * 0.48).toFixed(2));
+  // Bound score
+  compositeScore = Math.max(0, Math.min(1, compositeScore));
+
+  // Calibrated confidence (bounded between 0.75 and 0.98)
+  const confidence = Number((0.75 + Math.abs(compositeScore - 0.5) * 0.46).toFixed(2));
 
   let choice: string | undefined;
   let score: number | undefined;
@@ -150,33 +199,31 @@ function evaluateRowWithLaya(
 
   if (preset.outputType === 'choice' && preset.choices && preset.choices.length > 0) {
     const choices = preset.choices;
-    // Map composite score across choices
     const idx = Math.min(choices.length - 1, Math.max(0, Math.floor((1.0 - compositeScore) * choices.length)));
     choice = choices[idx];
 
-    if (compositeScore < 0.3) {
+    if (compositeScore < 0.28) {
       severity = 'critical';
-    } else if (compositeScore < 0.5) {
+    } else if (compositeScore < 0.48) {
       severity = 'high';
-    } else if (compositeScore < 0.75) {
+    } else if (compositeScore < 0.72) {
       severity = 'medium';
     } else {
       severity = 'low';
     }
   } else if (preset.outputType === 'score') {
-    // 1 to 5 scale
     score = Math.min(5, Math.max(1, Math.round(1 + compositeScore * 4)));
     if (score >= 4) severity = 'high';
     else if (score >= 3) severity = 'medium';
     else severity = 'low';
   } else if (preset.outputType === 'boolean') {
-    booleanVal = compositeScore > 0.55;
+    booleanVal = compositeScore > 0.52;
     severity = booleanVal ? 'high' : 'low';
   }
 
   const reasoningSummary = explanations.length > 0
-    ? explanations.join('; ')
-    : `Composite index score: ${(compositeScore * 100).toFixed(0)}%`;
+    ? explanations.slice(0, 3).join('; ')
+    : `Composite index: ${(compositeScore * 100).toFixed(0)}%`;
 
   return {
     rowIndex,

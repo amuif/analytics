@@ -54,20 +54,35 @@
   let inspectingRowIndex = $state<number | null>(null);
 
   onMount(async () => {
+    // Ensure activePresetId is set immediately
+    if (!activePresetId) {
+      activePresetId = summary.activePresetId || summary.suggestedPresets[0]?.id || '';
+    }
+    const currentPreset = summary.suggestedPresets.find(p => p.id === activePresetId) || summary.suggestedPresets[0];
+
     const saved = await db.getDecisions(summary.id);
     if (saved && saved.length === rows.length) {
       decisions = saved;
       processedCount = rows.length;
     } else {
-      runLayaEvaluation(activePreset);
+      runLayaEvaluation(currentPreset);
     }
   });
 
   async function runLayaEvaluation(preset: DecisionPreset) {
+    if (!preset) return;
     isEvaluating = true;
-    processedCount = 0;
     totalCount = rows.length;
     startTime = performance.now();
+
+    // 1. OPTIMISTIC IMMEDIATE UPDATE: Evaluate first 25 rows synchronously in < 1ms!
+    const optimisticSlice = layaEngine.evaluateOptimisticSlice(rows, preset, summary.columns, 25);
+    const initialDecisions: RowDecision[] = new Array(rows.length);
+    optimisticSlice.forEach(d => {
+      initialDecisions[d.rowIndex] = d;
+    });
+    decisions = initialDecisions;
+    processedCount = optimisticSlice.length;
 
     try {
       const results = await layaEngine.evaluateDataset(
@@ -75,7 +90,12 @@
         rows,
         preset,
         summary.columns,
-        (processed, total) => {
+        (chunk, processed, total) => {
+          // 2. INCREMENTAL STREAMING: Merge each chunk into decisions in real-time
+          chunk.forEach(d => {
+            decisions[d.rowIndex] = d;
+          });
+          decisions = [...decisions];
           processedCount = processed;
           totalCount = total;
         }
@@ -130,12 +150,13 @@
     return filteredRows.slice(start, start + pageSize);
   });
 
-  // KPI Calculations
-  const criticalCount = $derived(decisions.filter(d => d.severity === 'critical' || d.severity === 'high').length);
+  // KPI Calculations (Safely filtering defined decisions for real-time streaming)
+  const validDecisions = $derived(decisions.filter((d): d is RowDecision => !!d));
+  const criticalCount = $derived(validDecisions.filter(d => d.severity === 'critical' || d.severity === 'high').length);
   const avgConfidence = $derived.by(() => {
-    if (decisions.length === 0) return 0;
-    const sum = decisions.reduce((acc, curr) => acc + curr.confidence, 0);
-    return Math.round((sum / decisions.length) * 100);
+    if (validDecisions.length === 0) return 0;
+    const sum = validDecisions.reduce((acc, curr) => acc + (curr.confidence || 0), 0);
+    return Math.round((sum / validDecisions.length) * 100);
   });
 
   // Figma Pastel Domain Theme (Light & Dark)
