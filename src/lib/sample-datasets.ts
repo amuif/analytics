@@ -8,48 +8,158 @@ export interface SampleDatasetInfo {
 
 export const SAMPLE_DATASETS: SampleDatasetInfo[] = [
   {
-    name: 'HR Talent & Performance Audit',
-    filename: 'corporate_hr_talent_2026.csv',
-    description: '1,200 employee records with ratings, tenure, absences, compensation, and review notes.',
-    domain: 'HR',
+    name: 'Warehouse Stock & Restock Triage',
+    filename: 'warehouse_inventory_log.csv',
+    description: '1,200 product SKUs tracking stock-on-hand, monthly sales velocity, reorder thresholds, lead time, and holding costs.',
+    domain: 'Inventory',
     generateRows: () => {
-      const departments = ['Engineering', 'Product', 'Sales', 'Customer Success', 'Marketing', 'Finance', 'Operations'];
-      const roles = ['Junior Associate', 'Mid-Level Specialist', 'Senior Lead', 'Staff Architect', 'Principal Manager'];
-      const reviews = [
-        'Exceeded all quarterly OKRs, highly collaborative, mentor to peers.',
-        'Consistent delivery, reliable executor, standard velocity.',
-        'High skill but showing signs of exhaustion and missed sprint deadlines.',
-        'Frequent unexcused absences, struggles with cross-functional alignment.',
-        'Top sales performer, closed largest enterprise account in Q3.',
-        'Disengaged during team standups, low output relative to peer benchmark.',
-        'Strong initiative, primed for leadership and promotion.',
-        'Needs direct oversight, performance dropped sharply in recent cycle.',
+      const categories = [
+        'Electronics & Compute',
+        'Industrial & Machinery',
+        'Home & Smart Living',
+        'Automotive & Fleet',
+        'Medical & Lab Supplies',
+      ];
+
+      const productTemplates: Record<string, string[]> = {
+        'Electronics & Compute': [
+          '65W GaN Fast Charger Multi-Port',
+          'USB-C Quad Display Docking Hub',
+          'Cat-6A Shielded Ethernet Cable 50m',
+          '2.4GHz Wireless Ergonomic Mouse',
+          'Mechanical Backlit Keyboard Tactile',
+          'PCIe Gen4 NVMe Solid State Drive 2TB',
+          'Active Noise Cancelling Headset Pro',
+          'DisplayPort to HDMI 4K Adapter Braided',
+        ],
+        'Industrial & Machinery': [
+          'Heavy-Duty Pneumatic Solenoid Valve',
+          'Precision Caliper Digital Measuring Tool',
+          'Industrial HEPA Intake Air Filter',
+          'Hydraulic High-Pressure Flow Gauge',
+          'Double-Shielded Ball Bearing 25mm',
+          'Stainless Steel Flange Bolt Pack 100pc',
+          'Vibration Dampener Mount Industrial',
+        ],
+        'Home & Smart Living': [
+          'Smart Programmable Thermostat Sensor',
+          'Stainless Steel Mixing Bowl Set 5L',
+          'Bamboo Fiber Cutting Board Antimicrobial',
+          'Ultra-Quiet Ultrasonic Air Humidifier',
+          'Modular Storage Organizer Drawer 4-Tier',
+          'Cordless Handheld Vacuum High-Suction',
+        ],
+        'Automotive & Fleet': [
+          'Synthetic Motor Oil 5W-30 Full Case',
+          'Ceramic Front Brake Pad Replacement Kit',
+          'Heavy Duty ODB2 Diagnostic Scanner',
+          'Tire Pressure Monitoring Sensor TPMS',
+          'Automotive Battery Booster Pack 2000A',
+        ],
+        'Medical & Lab Supplies': [
+          'Sterile Nitrile Powder-Free Gloves L',
+          'Digital Infrared Forehead Thermometer',
+          'Borosilicate Glass Beaker Set 5-Piece',
+          'N95 Medical Grade Respirator Mask 50pk',
+          'Adjustable Volume Micropipette 100-1000uL',
+        ],
+      };
+
+      const warehouseLocations = ['Zone A (High Velocity)', 'Zone B (Bulk Pallets)', 'Zone C (Cold Storage)', 'Zone D (Standard Racks)'];
+      const suppliers = [
+        'Shenzhen Micro Logistics (Tier 1)',
+        'Apex Industrial Components LLC',
+        'Nordic Medical Diagnostics AS',
+        'Kyoto Precision Engineering Co',
+        'Continental Automotive Parts GmbH',
       ];
 
       const rows: Record<string, any>[] = [];
       const count = 1200;
 
       for (let i = 1; i <= count; i++) {
-        const dept = departments[i % departments.length];
-        const role = roles[(i * 3) % roles.length];
-        const rating = Number((2.0 + Math.random() * 3.0).toFixed(2)); // 2.0 to 5.0
-        const absences = Math.floor(Math.random() * 20);
-        const monthlyHours = 140 + Math.floor(Math.random() * 70);
-        const salary = 55000 + Math.floor(Math.random() * 95000);
-        const tenureYears = Number((0.5 + Math.random() * 8).toFixed(1));
-        const reviewNote = reviews[i % reviews.length];
+        const cat = categories[i % categories.length];
+        const templates = productTemplates[cat];
+        const title = templates[(i * 3) % templates.length];
+        const location = warehouseLocations[i % warehouseLocations.length];
+        const supplier = suppliers[i % suppliers.length];
+
+        // Realistic supply chain distribution:
+        // ~15% critical stockout risk, ~20% sluggish overstock, ~65% balanced
+        let stockOnHand: number;
+        let monthlyVelocity: number;
+        let reorderPoint = 35 + ((i * 7) % 85); // 35 to 120
+        let leadTimeDays = 7 + ((i * 5) % 35); // 7 to 42 days
+
+        if (i % 7 === 0) {
+          // Critical stockout hazard
+          stockOnHand = Math.floor(Math.random() * 20); // 0 to 19 units
+          monthlyVelocity = 80 + Math.floor(Math.random() * 120); // High demand
+          leadTimeDays = 21 + Math.floor(Math.random() * 20);
+        } else if (i % 5 === 0) {
+          // Heavy overstock
+          stockOnHand = 350 + Math.floor(Math.random() * 400); // 350 to 750 units
+          monthlyVelocity = 3 + Math.floor(Math.random() * 12); // Sluggish sales
+        } else {
+          // Healthy flow
+          monthlyVelocity = 30 + Math.floor(Math.random() * 90);
+          stockOnHand = reorderPoint + Math.floor(Math.random() * 120);
+        }
+
+        const dailyRunRate = Math.max(0.1, monthlyVelocity / 30);
+        const daysOfSupply = Math.round(stockOnHand / dailyRunRate);
+        const unitCost = Number((14.5 + ((i * 11) % 240)).toFixed(2));
+        const holdingCostMonth = Number(((stockOnHand * unitCost * 0.02)).toFixed(2)); // ~2% monthly storage cost
 
         rows.push({
-          Employee_ID: `EMP-${1000 + i}`,
-          Full_Name: `Employee ${i}`,
-          Department: dept,
-          Role: role,
-          Salary: salary,
-          Performance_Rating: rating,
-          Absence_Days: absences,
-          Monthly_Hours: monthlyHours,
-          Tenure_Years: tenureYears,
-          Evaluation_Notes: reviewNote,
+          SKU: `SKU-${cat.substring(0, 3).toUpperCase()}-${4000 + i}`,
+          Product_Title: title,
+          Category: cat,
+          Warehouse_Location: location,
+          Stock_On_Hand: stockOnHand,
+          Monthly_Sales_Velocity: monthlyVelocity,
+          Reorder_Point: reorderPoint,
+          Lead_Time_Days: leadTimeDays,
+          Days_Of_Supply: daysOfSupply,
+          Unit_Cost: unitCost,
+          Holding_Cost_Month: holdingCostMonth,
+          Supplier_Reliability: supplier,
+        });
+      }
+      return rows;
+    },
+  },
+  {
+    name: 'Overstock Markdown & Clearance Audit',
+    filename: 'warehouse_clearance_markdown_log.csv',
+    description: '1,000 retail and consumer SKUs with aging stock, dormant days, inventory valuation, and markdown urgency.',
+    domain: 'Inventory',
+    generateRows: () => {
+      const categories = ['Seasonal Apparel', 'Consumer Audio', 'Kitchen Appliances', 'Outdoor & Patio', 'Fitness Gear'];
+      const rows: Record<string, any>[] = [];
+      const count = 1000;
+
+      for (let i = 1; i <= count; i++) {
+        const cat = categories[i % categories.length];
+        const isDormant = i % 4 === 0;
+        const stock = isDormant ? 250 + (i % 300) : 40 + (i % 120);
+        const velocity = isDormant ? 2 + (i % 6) : 25 + (i % 80);
+        const daysDormant = isDormant ? 120 + (i % 180) : 10 + (i % 45);
+        const unitCost = Number((18 + (i % 95)).toFixed(2));
+        const retailPrice = Number((unitCost * (1.6 + (i % 3) * 0.3)).toFixed(2));
+        const dos = Math.round(stock / Math.max(0.1, velocity / 30));
+
+        rows.push({
+          SKU: `SKU-CLR-${cat.substring(0, 3).toUpperCase()}-${8000 + i}`,
+          Item_Name: `${cat} Series #${i}`,
+          Category: cat,
+          Stock_Units: stock,
+          Monthly_Sales: velocity,
+          Days_Dormant: daysDormant,
+          Days_Of_Supply: dos,
+          Unit_Cost: unitCost,
+          Retail_Price: retailPrice,
+          Tied_Capital: Number((stock * unitCost).toFixed(2)),
         });
       }
       return rows;
@@ -89,38 +199,6 @@ export const SAMPLE_DATASETS: SampleDatasetInfo[] = [
           Days_In_Pipeline: daysInPipeline,
           Total_Interactions: interactions,
           Lead_Score: leadScore,
-        });
-      }
-      return rows;
-    },
-  },
-  {
-    name: 'E-Commerce Stock & Restock Risk',
-    filename: 'warehouse_inventory_log.csv',
-    description: '800 product inventory records tracking units, velocity, lead time, and return rates.',
-    domain: 'E-Commerce',
-    generateRows: () => {
-      const categories = ['Electronics', 'Home & Kitchen', 'Apparel', 'Industrial', 'Health & Beauty'];
-      const rows: Record<string, any>[] = [];
-      const count = 800;
-
-      for (let i = 1; i <= count; i++) {
-        const cat = categories[i % categories.length];
-        const currentStock = Math.floor(Math.random() * 500);
-        const velocity = Math.floor(5 + Math.random() * 120);
-        const unitCost = Number((12.5 + Math.random() * 180).toFixed(2));
-        const leadTimeDays = Math.floor(3 + Math.random() * 30);
-        const returnRate = Number((0.01 + Math.random() * 0.22).toFixed(3));
-
-        rows.push({
-          SKU: `SKU-${cat.substring(0, 3).toUpperCase()}-${3000 + i}`,
-          Product_Title: `${cat} Model ${i}`,
-          Category: cat,
-          Current_Stock: currentStock,
-          Monthly_Velocity: velocity,
-          Unit_Cost: unitCost,
-          Lead_Time_Days: leadTimeDays,
-          Return_Rate: returnRate,
         });
       }
       return rows;

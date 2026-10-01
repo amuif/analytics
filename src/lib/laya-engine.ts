@@ -95,6 +95,167 @@ export class LayaDecisionEngine {
 
     for (let i = startIndex; i < endIndex; i++) {
       const row = rows[i] || {};
+
+      // --- INVENTORY & SUPPLY CHAIN DECISION HEAD ---
+      if (safePreset.domain === 'inventory' || safePreset.id.startsWith('inventory-')) {
+        const stock = Number(row['Stock_On_Hand'] ?? row['Stock_Units'] ?? row['Current_Stock'] ?? row['stock'] ?? row['inventory'] ?? row['Quantity_On_Hand'] ?? NaN);
+        const velocity = Number(row['Monthly_Sales_Velocity'] ?? row['Monthly_Sales'] ?? row['Monthly_Velocity'] ?? row['velocity'] ?? row['daily_sales'] ?? NaN);
+        const reorder = Number(row['Reorder_Point'] ?? row['reorder_point'] ?? row['safety_stock'] ?? 45);
+        const leadTime = Number(row['Lead_Time_Days'] ?? row['lead_time'] ?? 14);
+        const unitCost = Number(row['Unit_Cost'] ?? row['unit_cost'] ?? row['Cost'] ?? 35);
+        const dailyRunRate = !isNaN(velocity) && velocity > 0 ? velocity / 30 : Math.max(0.1, (stock || 30) / 45);
+        const dos = Number(row['Days_Of_Supply'] ?? (!isNaN(stock) ? Math.round(stock / dailyRunRate) : 45));
+
+        // Preset 1: Restock & Stockout Triage
+        if (safePreset.id === 'inventory-restock-triage' || safePreset.id.includes('restock')) {
+          if ((!isNaN(stock) && stock < reorder) || dos <= leadTime) {
+            decisions.push({
+              rowIndex: i,
+              choice: '🚨 Urgent Expedite (Stockout Risk)',
+              confidence: 0.96,
+              severity: 'critical',
+              reasoningSummary: `Stock (${stock}) breached reorder point (${reorder}); ${dos}d supply left vs ${leadTime}d supplier lead time.`
+            });
+            continue;
+          } else if ((!isNaN(stock) && stock <= reorder * 1.35) || dos <= leadTime * 1.6) {
+            decisions.push({
+              rowIndex: i,
+              choice: '📦 Standard Reorder Needed',
+              confidence: 0.91,
+              severity: 'high',
+              reasoningSummary: `Approaching reorder threshold (${reorder} units); ${dos}d buffer remaining with ${leadTime}d lead time.`
+            });
+            continue;
+          } else if (dos > 140) {
+            decisions.push({
+              rowIndex: i,
+              choice: '⚠️ Overstocked Supply',
+              confidence: 0.88,
+              severity: 'medium',
+              reasoningSummary: `Excess safety buffer (${dos} days of supply); on-hand inventory (${stock}) exceeds quarterly demand run-rate.`
+            });
+            continue;
+          } else {
+            decisions.push({
+              rowIndex: i,
+              choice: '✅ Healthy Stock Velocity',
+              confidence: 0.94,
+              severity: 'low',
+              reasoningSummary: `Balanced stock: ${stock} units on hand matches ${velocity} units/mo demand with safe buffer.`
+            });
+            continue;
+          }
+        }
+
+        // Preset 2: Markdown & Clearance Triage
+        if (safePreset.id === 'inventory-markdown-clearance' || safePreset.id.includes('markdown')) {
+          const holdingCost = row['Holding_Cost_Month'] ? `$${row['Holding_Cost_Month']}/mo` : 'elevated holding cost';
+          const daysDormant = Number(row['Days_Dormant'] ?? dos);
+
+          if (dos >= 150 || daysDormant >= 120 || (!isNaN(stock) && stock > 100 && velocity < 8)) {
+            decisions.push({
+              rowIndex: i,
+              choice: '🔥 Dead Stock Liquidation (60% Off)',
+              confidence: 0.95,
+              severity: 'critical',
+              reasoningSummary: `Stagnant inventory (${dos} days of supply) with near-zero run-rate; accumulating ${holdingCost}.`
+            });
+            continue;
+          } else if (dos >= 85 || daysDormant >= 60) {
+            decisions.push({
+              rowIndex: i,
+              choice: '🏷️ Clearance Markdown (30-40%)',
+              confidence: 0.90,
+              severity: 'high',
+              reasoningSummary: `Sluggish turnover (${dos} days of supply); recommend promotional markdown to release working capital.`
+            });
+            continue;
+          } else if (dos >= 50) {
+            decisions.push({
+              rowIndex: i,
+              choice: '📦 Promotional Bundle',
+              confidence: 0.86,
+              severity: 'medium',
+              reasoningSummary: `Moderate overstock (${dos}d supply); optimal candidate for multi-pack bundling or catalog promo.`
+            });
+            continue;
+          } else {
+            decisions.push({
+              rowIndex: i,
+              choice: '💎 Retain Full Margin',
+              confidence: 0.92,
+              severity: 'low',
+              reasoningSummary: `Lean inventory turnover (${dos}d supply); high sell-through rate justifies full margin retention.`
+            });
+            continue;
+          }
+        }
+
+        // Preset 3: ABC Stratification
+        if (safePreset.id === 'inventory-abc-stratification' || safePreset.id.includes('abc')) {
+          const monthlyRunRateValue = (!isNaN(velocity) ? velocity : 25) * unitCost;
+          if (monthlyRunRateValue >= 7500 || (velocity >= 80 && unitCost >= 70)) {
+            decisions.push({
+              rowIndex: i,
+              choice: 'Class A - Critical Capital Driver',
+              confidence: 0.95,
+              severity: 'critical',
+              reasoningSummary: `High capital exposure ($${Math.round(monthlyRunRateValue).toLocaleString()}/mo); mandates continuous cycle counts and tight vendor SLAs.`
+            });
+            continue;
+          } else if (monthlyRunRateValue >= 2000 || velocity >= 35) {
+            decisions.push({
+              rowIndex: i,
+              choice: 'Class B - Core Continuous Demand',
+              confidence: 0.89,
+              severity: 'medium',
+              reasoningSummary: `Consistent mid-tier contributor ($${Math.round(monthlyRunRateValue).toLocaleString()}/mo); standard automated reorder point.`
+            });
+            continue;
+          } else {
+            decisions.push({
+              rowIndex: i,
+              choice: 'Class C - Low Frequency Tail',
+              confidence: 0.88,
+              severity: 'low',
+              reasoningSummary: `Low capital exposure ($${Math.round(monthlyRunRateValue).toLocaleString()}/mo); manage via bulk minimum order quantities (MOQ).`
+            });
+            continue;
+          }
+        }
+
+        // Preset 4: Supplier Lead Time & Resilience
+        if (safePreset.id === 'inventory-leadtime-resilience' || safePreset.id.includes('leadtime')) {
+          const supplierRel = String(row['Supplier_Reliability'] ?? '').toLowerCase();
+          let riskScore = 1;
+          let riskSummary = '';
+
+          if (leadTime > 30 || supplierRel.includes('high risk') || supplierRel.includes('tier 3')) {
+            riskScore = 5;
+            riskSummary = `Extended lead time (${leadTime} days) with elevated supplier risk; highly vulnerable to supply chain disruptions.`;
+          } else if (leadTime > 20 || supplierRel.includes('moderate')) {
+            riskScore = 4;
+            riskSummary = `Lengthy transit (${leadTime} days); requires oversized safety buffer.`;
+          } else if (leadTime > 12) {
+            riskScore = 3;
+            riskSummary = `Moderate supplier transit (${leadTime} days); acceptable resilience.`;
+          } else {
+            riskScore = 1;
+            riskSummary = `Agile supplier turnaround (${leadTime} days); rapid just-in-time replenishment capability.`;
+          }
+
+          decisions.push({
+            rowIndex: i,
+            score: riskScore,
+            severity: riskScore >= 4 ? 'high' : riskScore === 3 ? 'medium' : 'low',
+            confidence: 0.93,
+            reasoningSummary: riskSummary,
+          });
+          continue;
+        }
+      }
+
+      // --- GENERAL STATISTICAL INFERENCE ENGINE ---
       let compositeScore = 0.5;
       const explanations: string[] = [];
 

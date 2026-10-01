@@ -162,10 +162,11 @@
 
   // Figma Pastel Domain Theme (Light & Dark)
   const domainPastel = $derived.by(() => {
+    if (summary.detectedDomain === 'inventory') return 'bg-[#c8e6cd] dark:bg-[#18291d] border-black/10 dark:border-[#325638] text-black dark:text-white';
     if (summary.detectedDomain === 'hr') return 'bg-[#dceeb1] dark:bg-[#1d2b14] border-black/10 dark:border-[#384f27] text-black dark:text-white';
     if (summary.detectedDomain === 'sales') return 'bg-[#c5b0f4] dark:bg-[#251b3d] border-black/10 dark:border-[#4d367a] text-black dark:text-white';
     if (summary.detectedDomain === 'ecommerce') return 'bg-[#f3c9b6] dark:bg-[#382017] border-black/10 dark:border-[#733f2d] text-black dark:text-white';
-    if (summary.detectedDomain === 'support') return 'bg-[#c8e6cd] dark:bg-[#18291d] border-black/10 dark:border-[#325638] text-black dark:text-white';
+    if (summary.detectedDomain === 'support') return 'bg-[#efd4d4] dark:bg-[#381f1f] border-black/10 dark:border-[#6a3535] text-black dark:text-white';
     return 'bg-[#f4ecd6] dark:bg-[#332b1b] border-black/10 dark:border-[#5c4e31] text-black dark:text-white';
   });
 
@@ -433,10 +434,10 @@
           class="px-3 sm:px-4 py-2 rounded-full bg-[#f7f7f5] dark:bg-[#1c1c1c] border border-[#e6e6e6] dark:border-[#333333] text-xs text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white cursor-pointer font-sans"
         >
           <option value="all">All Tiers ({enrichedRows.length})</option>
-          <option value="critical">Critical / PIP</option>
+          <option value="critical">Critical / Urgent Action</option>
           <option value="high">High Priority</option>
-          <option value="medium">Medium / Watch</option>
-          <option value="low">Optimal / Normal</option>
+          <option value="medium">Medium / Watchlist</option>
+          <option value="low">Optimal / Healthy</option>
         </select>
       </div>
     </div>

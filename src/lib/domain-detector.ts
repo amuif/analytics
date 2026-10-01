@@ -1,6 +1,69 @@
 import type { BusinessDomain, DecisionPreset } from '../types';
 
 export const BUILTIN_PRESETS: Record<BusinessDomain, DecisionPreset[]> = {
+  inventory: [
+    {
+      id: 'inventory-restock-triage',
+      name: 'Inventory Restock & Stockout Triage',
+      domain: 'inventory',
+      description: 'Evaluates stock-on-hand against sales run-rate, reorder triggers, and supplier lead times to prevent stockouts.',
+      targetQuestion: 'What operational replenishment priority is required for this product SKU?',
+      outputType: 'choice',
+      choices: ['🚨 Urgent Expedite (Stockout Risk)', '📦 Standard Reorder Needed', '✅ Healthy Stock Velocity', '⚠️ Overstocked Supply'],
+      criteria: 'stock, on_hand, reorder, velocity, sales, lead_time, supply, days_of_supply',
+    },
+    {
+      id: 'inventory-markdown-clearance',
+      name: 'Overstock & Dead Stock Markdown Triage',
+      domain: 'inventory',
+      description: 'Identifies sluggish inventory consuming warehouse space and calculates markdown discount urgency.',
+      targetQuestion: 'What pricing or clearance action should be executed for this slow-moving inventory?',
+      outputType: 'choice',
+      choices: ['🔥 Dead Stock Liquidation (60% Off)', '🏷️ Clearance Markdown (30-40%)', '📦 Promotional Bundle', '💎 Retain Full Margin'],
+      criteria: 'days_of_supply, stock, velocity, holding_cost, age, turnover, unit_cost',
+    },
+    {
+      id: 'inventory-abc-stratification',
+      name: 'ABC Working Capital & Velocity Stratification',
+      domain: 'inventory',
+      description: 'Classifies SKUs into Pareto ABC tiers (Class A: High-turnover capital drivers, Class B: Core catalog, Class C: Low-frequency tail).',
+      targetQuestion: 'What inventory control and working capital class does this SKU belong to?',
+      outputType: 'choice',
+      choices: ['Class A - Critical Capital Driver', 'Class B - Core Continuous Demand', 'Class C - Low Frequency Tail'],
+      criteria: 'unit_cost, price, velocity, revenue, turnover, value, margin',
+    },
+    {
+      id: 'inventory-leadtime-resilience',
+      name: 'Supplier Lead Time & Supply Chain Vulnerability',
+      domain: 'inventory',
+      description: 'Audits supplier lead time reliability and vulnerability to shipping delays or port congestion.',
+      targetQuestion: 'Rate the supply chain vulnerability and lead-time risk for this supplier SKU (1-5).',
+      outputType: 'score',
+      scoreScale: { min: 1, max: 5, lowLabel: 'Resilient Supply Flow', highLabel: 'Severe Disruption Risk' },
+      criteria: 'lead_time, supplier, reliability, delay, reorder_point, days_of_supply',
+    },
+  ],
+  ecommerce: [
+    {
+      id: 'ecom-inventory-action',
+      name: 'E-Commerce Catalog Restock & Triage',
+      domain: 'ecommerce',
+      description: 'Prescribes action for product inventory balance, turnover rate, and stockout risk.',
+      targetQuestion: 'What operational action is required for this product SKU inventory?',
+      outputType: 'choice',
+      choices: ['Urgent Restock', 'Healthy Velocity', 'Overstocked (Discount)', 'Dead Stock Liquidation'],
+      criteria: 'stock, inventory, units_sold, velocity, lead_time, reorder_point, days_of_supply, cost',
+    },
+    {
+      id: 'ecom-return-flag',
+      name: 'Order Return & Disputed Flag',
+      domain: 'ecommerce',
+      description: 'Flags transactions with high return propensity, refund friction, or delivery risk.',
+      targetQuestion: 'Does this order require shipping hold or return dispute inspection?',
+      outputType: 'boolean',
+      criteria: 'return_rate, discount_percent, shipping_method, order_value, return_history',
+    },
+  ],
   hr: [
     {
       id: 'hr-performance-triage',
@@ -54,27 +117,6 @@ export const BUILTIN_PRESETS: Record<BusinessDomain, DecisionPreset[]> = {
       criteria: 'arr, mrr, usage, tickets, renewal_date, contract_length, nps, last_contact',
     },
   ],
-  ecommerce: [
-    {
-      id: 'ecom-inventory-action',
-      name: 'Inventory Restock & Markdown Triage',
-      domain: 'ecommerce',
-      description: 'Prescribes action for product inventory balance, turnover rate, and stockout risk.',
-      targetQuestion: 'What operational action is required for this product SKU inventory?',
-      outputType: 'choice',
-      choices: ['Urgent Restock', 'Healthy Velocity', 'Overstocked (Discount)', 'Dead Stock Liquidation'],
-      criteria: 'stock, inventory, units_sold, velocity, lead_time, reorder_point, days_of_supply, cost',
-    },
-    {
-      id: 'ecom-return-flag',
-      name: 'Order Return & Disputed Flag',
-      domain: 'ecommerce',
-      description: 'Flags transactions with high return propensity, refund friction, or delivery risk.',
-      targetQuestion: 'Does this order require shipping hold or return dispute inspection?',
-      outputType: 'boolean',
-      criteria: 'return_rate, discount_percent, shipping_method, order_value, return_history',
-    },
-  ],
   support: [
     {
       id: 'support-escalation',
@@ -112,6 +154,17 @@ export const BUILTIN_PRESETS: Record<BusinessDomain, DecisionPreset[]> = {
 };
 
 const DOMAIN_KEYWORDS: Record<BusinessDomain, string[]> = {
+  inventory: [
+    'sku', 'stock', 'inventory', 'on_hand', 'warehouse', 'reorder', 'reorder_point',
+    'lead_time', 'days_of_supply', 'holding_cost', 'velocity', 'units_sold', 'cogs',
+    'supplier', 'pallet', 'bin', 'safety_stock', 'backorder', 'moq', 'turnover',
+    'lot', 'batch', 'expiration', 'markdown', 'restock', 'product_title', 'asin',
+    'barcode', 'item_code', 'unit_cost'
+  ],
+  ecommerce: [
+    'order', 'cart', 'checkout', 'quantity', 'unit_price', 'shipping', 'return',
+    'refund', 'customer_id', 'variant', 'discount', 'cost_of_goods', 'tracking'
+  ],
   hr: [
     'employee', 'emp_', 'staff', 'salary', 'compensation', 'payroll', 'department',
     'hire_date', 'tenure', 'performance', 'rating', 'review', 'manager', 'leave',
@@ -122,11 +175,6 @@ const DOMAIN_KEYWORDS: Record<BusinessDomain, string[]> = {
     'lead', 'deal', 'opportunity', 'pipeline', 'quota', 'arr', 'mrr', 'revenue',
     'stage', 'close_date', 'rep', 'salesperson', 'conversion', 'prospect', 'won',
     'lost', 'forecast', 'booking', 'contract', 'expansion'
-  ],
-  ecommerce: [
-    'order', 'sku', 'product', 'inventory', 'stock', 'cart', 'checkout', 'quantity',
-    'unit_price', 'shipping', 'return', 'refund', 'supplier', 'reorder', 'customer_id',
-    'asin', 'barcode', 'variant', 'discount', 'cost_of_goods'
   ],
   support: [
     'ticket', 'incident', 'issue', 'severity', 'priority', 'resolution', 'agent',
@@ -139,9 +187,10 @@ export function detectBusinessDomain(headers: string[]): { domain: BusinessDomai
   const normalizedHeaders = headers.map(h => h.toLowerCase().replace(/[^a-z0-9_]/g, '_'));
   
   const scores: Record<BusinessDomain, { count: number; matched: string[] }> = {
+    inventory: { count: 0, matched: [] },
+    ecommerce: { count: 0, matched: [] },
     hr: { count: 0, matched: [] },
     sales: { count: 0, matched: [] },
-    ecommerce: { count: 0, matched: [] },
     support: { count: 0, matched: [] },
     general: { count: 0, matched: [] }
   };
@@ -161,11 +210,11 @@ export function detectBusinessDomain(headers: string[]): { domain: BusinessDomai
     }
   }
 
-  // Find domain with max matches (excluding general unless no other matches)
+  // Find domain with max matches (prioritizing inventory, then ecommerce, hr, sales, support)
   let bestDomain: BusinessDomain = 'general';
   let maxCount = 0;
 
-  for (const domain of ['hr', 'sales', 'ecommerce', 'support'] as BusinessDomain[]) {
+  for (const domain of ['inventory', 'ecommerce', 'hr', 'sales', 'support'] as BusinessDomain[]) {
     if (scores[domain].count > maxCount) {
       maxCount = scores[domain].count;
       bestDomain = domain;
@@ -180,8 +229,8 @@ export function detectBusinessDomain(headers: string[]): { domain: BusinessDomai
     };
   }
 
-  // Calculate confidence between 0.65 and 0.98 based on match density
-  const confidence = Math.min(0.98, Math.max(0.65, (maxCount / Math.max(headers.length, 3)) * 1.5));
+  // Calculate confidence between 0.70 and 0.99 based on match density
+  const confidence = Math.min(0.99, Math.max(0.70, (maxCount / Math.max(headers.length, 3)) * 1.6));
 
   return {
     domain: bestDomain,

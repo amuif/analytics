@@ -13,6 +13,7 @@
     Users,
     TrendingUp,
     ShoppingBag,
+    Boxes,
     ArrowRight
   } from '@lucide/svelte';
 
@@ -98,8 +99,9 @@
 
   // Figma Pastel Themes for sample datasets (Light & Dark)
   function getSampleTheme(domain: string) {
-    if (domain === 'HR') return 'bg-[#dceeb1] dark:bg-[#1e2d14] dark:border-[#3c5427]'; // Lime
+    if (domain === 'Inventory' || domain === 'inventory') return 'bg-[#c8e6cd] dark:bg-[#18291d] dark:border-[#325638]'; // Figma Mint
     if (domain === 'Sales') return 'bg-[#c5b0f4] dark:bg-[#251b3d] dark:border-[#4d377b]'; // Lilac
+    if (domain === 'HR') return 'bg-[#dceeb1] dark:bg-[#1e2d14] dark:border-[#3c5427]'; // Lime
     return 'bg-[#f3c9b6] dark:bg-[#381f17] dark:border-[#733e2c]'; // Coral
   }
 </script>
@@ -119,7 +121,7 @@
       Decide with data.
     </h1>
     <p class="mt-3.5 sm:mt-5 text-[16px] sm:text-[20px] md:text-[22px] font-light text-neutral-600 dark:text-neutral-400 leading-snug tracking-[-0.26px]">
-      Upload your spreadsheets. We ingest them locally, auto-build visual distributions, and trigger non-autoregressive decision models in your browser.
+      Upload your inventory, warehouse stock, or business spreadsheets. We ingest them locally, auto-build visual distributions, and trigger non-autoregressive decision models in your browser.
     </p>
   </div>
 
@@ -158,7 +160,7 @@
           Drop your dataset here, or <span class="underline decoration-black dark:decoration-white underline-offset-4 font-semibold">browse</span>
         </p>
         <p class="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 mt-2 max-w-md">
-          Supports Excel (.xlsx, .xls) and CSV / TSV files up to 10,000+ rows.
+          Supports Inventory, Warehouse, ERP & Sales files (.xlsx, .xls, .csv, .tsv) up to 10,000+ rows.
         </p>
 
         <!-- Figma Pill Badges -->
@@ -204,10 +206,12 @@
               <span class="text-xs font-mono uppercase tracking-wider font-semibold text-neutral-800 dark:text-neutral-200">
                 {sample.domain} Playbook
               </span>
-              {#if sample.domain === 'HR'}
-                <Users class="w-4 h-4 text-black dark:text-white" />
+              {#if sample.domain === 'Inventory'}
+                <Boxes class="w-4 h-4 text-black dark:text-white" />
               {:else if sample.domain === 'Sales'}
                 <TrendingUp class="w-4 h-4 text-black dark:text-white" />
+              {:else if sample.domain === 'HR'}
+                <Users class="w-4 h-4 text-black dark:text-white" />
               {:else}
                 <ShoppingBag class="w-4 h-4 text-black dark:text-white" />
               {/if}
