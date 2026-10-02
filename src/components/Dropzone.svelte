@@ -104,7 +104,7 @@
       class="inline-flex items-center px-3.5 sm:px-4 py-1.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-[11px] sm:text-[12px] font-mono font-semibold transition-all shadow-sm text-center"
       title="Download standalone Windows desktop executable (21.4 MB)"
     >
-      <span>Download Desktop App (.exe)</span>
+      <span>Download Desktop App</span>
     </a>
   </div>
 

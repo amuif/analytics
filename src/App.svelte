@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import Dropzone from './components/Dropzone.svelte';
   import ResultsDashboard from './components/ResultsDashboard.svelte';
+  import Logo from './components/Logo.svelte';
   import { db } from './lib/db';
   import { themeManager } from './lib/theme.svelte';
   import type { DatasetSummary, ChartDefinition } from './types';
@@ -42,10 +43,8 @@
   <header class="border-b border-[#e6e6e6] dark:border-[#222222] bg-white dark:bg-[#121212] sticky top-0 z-40 transition-colors duration-200">
     <div class="max-w-[1280px] mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
       <div class="flex items-center gap-2.5 sm:gap-3">
-        <!-- Solid Black / White Monogram Brand Mark -->
-        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black transition-colors shrink-0">
-          <span class="text-xs sm:text-sm font-bold font-mono leading-none">D</span>
-        </div>
+        <!-- Figma Modular D Brand Mark -->
+        <Logo size={28} />
         <div class="flex items-center gap-1.5 sm:gap-2">
           <span class="text-sm sm:text-base font-semibold tracking-tight text-black dark:text-white">Decide</span>
           <span class="text-[10px] sm:text-[11px] font-mono px-2 sm:px-2.5 py-0.5 rounded-full bg-[#f7f7f5] dark:bg-[#1a1a1a] text-neutral-800 dark:text-neutral-300 border border-[#e6e6e6] dark:border-[#2c2c2c]">
@@ -63,7 +62,7 @@
           class="inline-flex items-center px-3 sm:px-3.5 py-1.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-mono font-semibold transition-all shadow-xs"
           title="Download standalone Windows desktop executable (21.4 MB)"
         >
-          <span>Download App (.exe)</span>
+          <span>Download App</span>
         </a>
 
         <!-- Figma Dark / Light Mode Toggle Pill -->
