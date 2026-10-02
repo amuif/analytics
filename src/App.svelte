@@ -7,6 +7,7 @@
   import { themeManager } from './lib/theme.svelte';
   import type { DatasetSummary, ChartDefinition } from './types';
   import type { ParseResult } from './lib/parser';
+  import { Moon, Sun } from 'lucide-svelte';
   // State
   let currentSummary = $state<DatasetSummary | null>(null);
   let currentRows = $state<Record<string, any>[]>([]);
@@ -72,8 +73,13 @@
           class="inline-flex items-center px-3 sm:px-3.5 py-1.5 rounded-full border border-black dark:border-[#383838] bg-[#f7f7f5] dark:bg-[#1c1c1c] hover:bg-neutral-200 dark:hover:bg-[#252525] text-xs font-mono font-semibold transition-all cursor-pointer shadow-xs"
           title="Toggle light or dark theme"
         >
-          <span class="text-neutral-500 dark:text-neutral-400 mr-1 text-[11px]">Theme:</span>
-          <span class="text-black dark:text-white capitalize">{themeManager.current}</span>
+        {#if themeManager.current === 'light'}
+          <Sun/>
+        
+        {/if}
+        {#if themeManager.current === 'dark'}
+          <Moon/>
+        {/if}
         </button>
       </div>
     </div>
