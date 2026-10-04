@@ -23,6 +23,3 @@ dist-ssr
 *.sln
 *.sw?
 
-# Built binaries
-public/downloads/*.exe
-public/downloads/*.msi

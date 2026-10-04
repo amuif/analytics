@@ -5,6 +5,7 @@
   import { db } from '../lib/db';
   import ChartCard from './ChartCard.svelte';
   import StressMeter from './StressMeter.svelte';
+  import { ArrowLeft } from 'lucide-svelte';
 
   let { summary, rows, charts, onReset } = $props<{
     summary: DatasetSummary;
@@ -212,9 +213,9 @@
         <button
           type="button"
           onclick={onReset}
-          class="inline-flex items-center px-4 sm:px-5 py-2.5 rounded-full bg-white dark:bg-[#181818] hover:bg-neutral-50 dark:hover:bg-[#242424] text-black dark:text-white border border-black dark:border-[#383838] text-xs font-medium transition-all cursor-pointer shadow-xs shrink-0"
+          class="inline-flex items-center gap-2 p-2 rounded-full bg-white dark:bg-[#181818] hover:bg-neutral-50 dark:hover:bg-[#242424] text-black dark:text-white border border-black dark:border-[#383838] text-xs font-medium transition-all cursor-pointer shadow-xs shrink-0"
         >
-          <span>Upload Dataset</span>
+          <ArrowLeft class='h-4 w-4'/> <span>Go back</span>
         </button>
 
         <div class="hidden sm:block h-4 w-[1px] bg-[#e6e6e6] dark:bg-[#262626]"></div>

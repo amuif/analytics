@@ -6,7 +6,6 @@ export class StressMonitor {
   private currentFps = 60;
   private droppedFrames = 0;
   private animFrameId: number | null = null;
-  private isTauri = false;
   private hasWebGpu = false;
 
   constructor() {
@@ -15,11 +14,6 @@ export class StressMonitor {
   }
 
   private async detectEnvironment() {
-    // Check if running inside Tauri
-    if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
-      this.isTauri = true;
-    }
-
     // Check WebGPU support
     if (typeof navigator !== 'undefined' && 'gpu' in navigator) {
       try {
@@ -75,12 +69,9 @@ export class StressMonitor {
       stressLevel = 'moderate';
     }
 
-    let hardwareMode: StressTelemetry['hardwareMode'] = 'WASM-SIMD (Multi-threaded)';
-    if (this.isTauri) {
-      hardwareMode = 'Native Rust/Tauri';
-    } else if (this.hasWebGpu) {
-      hardwareMode = 'WebGPU (Hardware Accelerated)';
-    }
+    const hardwareMode: StressTelemetry['hardwareMode'] = this.hasWebGpu
+      ? 'WebGPU (Hardware Accelerated)'
+      : 'WASM-SIMD (Multi-threaded)';
 
     return {
       memoryUsedMB,

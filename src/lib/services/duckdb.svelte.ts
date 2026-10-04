@@ -303,107 +303,49 @@ class DuckDBService {
 		}
 	}
 
-	async loadSampleDataset(type: 'iris' | 'sales' | 'stocks' = 'iris'): Promise<void> {
+	async loadSampleDataset(type: 'restock' | 'clearance' | 'abc' = 'restock'): Promise<void> {
 		await this.init();
 
-		if (type === 'iris') {
-			const csv = `sepal_length,sepal_width,petal_length,petal_width,species
-5.1,3.5,1.4,0.2,setosa
-4.9,3.0,1.4,0.2,setosa
-4.7,3.2,1.3,0.2,setosa
-4.6,3.1,1.5,0.2,setosa
-5.0,3.6,1.4,0.2,setosa
-5.4,3.9,1.7,0.4,setosa
-4.6,3.4,1.4,0.3,setosa
-5.0,3.4,1.5,0.2,setosa
-4.4,2.9,1.4,0.2,setosa
-4.9,3.1,1.5,0.1,setosa
-5.4,3.7,1.5,0.2,setosa
-4.8,3.4,1.6,0.2,setosa
-4.8,3.0,1.4,0.1,setosa
-4.3,3.0,1.1,0.1,setosa
-5.8,4.0,1.2,0.2,setosa
-5.7,4.4,1.5,0.4,setosa
-5.4,3.9,1.3,0.4,setosa
-5.1,3.5,1.4,0.3,setosa
-5.7,3.8,1.7,0.3,setosa
-5.1,3.8,1.5,0.3,setosa
-7.0,3.2,4.7,1.4,versicolor
-6.4,3.2,4.5,1.5,versicolor
-6.9,3.1,4.9,1.5,versicolor
-5.5,2.3,4.0,1.3,versicolor
-6.5,2.8,4.6,1.5,versicolor
-5.7,2.8,4.5,1.3,versicolor
-6.3,3.3,4.7,1.6,versicolor
-4.9,2.4,3.3,1.0,versicolor
-6.6,2.9,4.6,1.3,versicolor
-5.2,2.7,3.9,1.4,versicolor
-5.0,2.0,3.5,1.0,versicolor
-5.9,3.0,4.2,1.5,versicolor
-6.0,2.2,4.0,1.0,versicolor
-6.1,2.9,4.7,1.4,versicolor
-5.6,2.9,3.6,1.3,versicolor
-6.7,3.1,4.4,1.4,versicolor
-5.6,3.0,4.5,1.5,versicolor
-5.8,2.7,4.1,1.0,versicolor
-6.2,2.2,4.5,1.5,versicolor
-5.6,2.5,3.9,1.1,versicolor
-6.3,3.3,6.0,2.5,virginica
-5.8,2.7,5.1,1.9,virginica
-7.1,3.0,5.9,2.1,virginica
-6.3,2.9,5.6,1.8,virginica
-6.5,3.0,5.8,2.2,virginica
-7.6,3.0,6.6,2.1,virginica
-4.9,2.5,4.5,1.7,virginica
-7.3,2.9,6.3,1.8,virginica
-6.7,2.5,5.8,1.8,virginica
-7.2,3.6,6.1,2.5,virginica
-6.5,3.2,5.1,2.0,virginica
-6.4,2.7,5.3,1.9,virginica
-6.8,3.0,5.5,2.1,virginica
-5.7,2.5,5.0,2.0,virginica
-5.8,2.8,5.1,2.4,virginica
-6.4,3.2,5.3,2.3,virginica
-6.5,3.0,5.5,1.8,virginica
-7.7,3.8,6.7,2.2,virginica
-7.7,2.6,6.9,2.3,virginica
-6.0,2.2,5.0,1.5,virginica`;
-			const file = new File([csv], 'iris_dataset.csv', { type: 'text/csv' });
+		if (type === 'restock') {
+			const csv = `sku,product_title,category,warehouse_zone,stock_on_hand,monthly_velocity,reorder_point,lead_time_days,days_of_supply,unit_cost,holding_cost_month
+SKU-ELC-1001,65W GaN Fast Charger Multi-Port,Electronics,Zone A (High Velocity),14,115,45,21,4,18.50,5.18
+SKU-ELC-1002,USB-C Quad Display Docking Hub,Electronics,Zone A (High Velocity),120,65,40,14,55,62.00,148.80
+SKU-IND-2001,Heavy-Duty Pneumatic Solenoid Valve,Machinery,Zone B (Bulk Pallets),8,85,50,28,3,45.00,7.20
+SKU-IND-2002,Precision Digital Caliper Tool,Machinery,Zone B (Bulk Pallets),180,45,35,14,120,24.50,88.20
+SKU-HOM-3001,Smart Programmable Thermostat Sensor,Home & Living,Zone D (Standard Racks),520,12,60,14,1300,38.00,395.20
+SKU-HOM-3002,Stainless Steel Mixing Bowl Set 5L,Home & Living,Zone D (Standard Racks),95,40,30,10,71,16.50,31.35
+SKU-AUT-4001,Synthetic Motor Oil 5W-30 Full Case,Automotive,Zone B (Bulk Pallets),18,92,45,25,6,32.00,11.52
+SKU-AUT-4002,Ceramic Front Brake Pad Replacement Kit,Automotive,Zone B (Bulk Pallets),140,55,40,14,48.00,134.40
+SKU-MED-5001,Sterile Nitrile Powder-Free Gloves L,Medical Supplies,Zone C (Cold Storage),620,18,70,14,1033,12.50,155.00
+SKU-MED-5002,Digital Infrared Forehead Thermometer,Medical Supplies,Zone C (Cold Storage),110,60,35,12,55,22.00,48.40`;
+			const file = new File([csv], 'warehouse_stock_restock.csv', { type: 'text/csv' });
 			await this.registerFile(file);
-		} else if (type === 'sales') {
-			const csv = `order_id,order_date,customer,category,sub_category,sales,quantity,profit
-CA-2024-1001,2024-01-15,Acme Corp,Technology,Phones,1249.99,2,312.50
-CA-2024-1002,2024-01-18,Global Logistics,Furniture,Chairs,450.00,4,85.20
-CA-2024-1003,2024-02-04,Stark Industries,Technology,Laptops,2499.00,1,620.00
-CA-2024-1004,2024-02-11,Wayne Enterprises,Office Supplies,Binders,42.50,10,18.75
-CA-2024-1005,2024-03-01,Cyberdyne Systems,Technology,Accessories,189.90,5,45.00
-CA-2024-1006,2024-03-14,Umbrella Corp,Office Supplies,Paper,78.20,8,22.10
-CA-2024-1007,2024-04-02,Hooli,Furniture,Bookcases,890.00,3,145.00
-CA-2024-1008,2024-04-19,Pied Piper,Technology,Phones,849.50,1,190.00
-CA-2024-1009,2024-05-08,Initech,Office Supplies,Appliances,315.00,2,72.40
-CA-2024-1010,2024-05-23,Massive Dynamic,Furniture,Tables,1150.00,2,-45.00
-CA-2024-1011,2024-06-03,Tyrell Corp,Technology,Laptops,3199.99,2,850.00
-CA-2024-1012,2024-06-17,Soylent Corp,Office Supplies,Storage,230.00,6,52.80
-CA-2024-1013,2024-07-05,Wonka Industries,Furniture,Furnishings,160.00,4,34.00
-CA-2024-1014,2024-07-22,Aperture Science,Technology,Phones,1100.00,2,240.00
-CA-2024-1015,2024-08-11,Oscorp,Office Supplies,Paper,64.00,5,19.20`;
-			const file = new File([csv], 'superstore_sales.csv', { type: 'text/csv' });
+		} else if (type === 'clearance') {
+			const csv = `sku,item_name,category,stock_units,monthly_sales,days_dormant,days_of_supply,unit_cost,retail_price,tied_capital,markdown_tier
+SKU-CLR-APP-8001,Winter Thermal Parka Heavy-Duty,Seasonal Apparel,340,3,145,3400,42.00,110.00,14280.00,Dead Stock (60% Off)
+SKU-CLR-APP-8002,Breathable Mesh Running Shorts,Seasonal Apparel,85,22,25,116,14.00,34.00,1190.00,Full Margin
+SKU-CLR-AUD-8003,Over-Ear Studio Headphones V1,Consumer Audio,210,5,110,1260,35.00,89.00,7350.00,Clearance (35% Off)
+SKU-CLR-AUD-8004,Bluetooth Waterproof Speaker Mini,Consumer Audio,60,28,18,64,18.50,45.00,1110.00,Full Margin
+SKU-CLR-KIT-8005,Programmable Cold Drip Coffee Maker,Kitchenware,190,4,130,1425,52.00,129.00,9880.00,Dead Stock (60% Off)
+SKU-CLR-KIT-8006,Cast Iron Skillet Pre-Seasoned 12in,Kitchenware,75,32,14,70,22.00,55.00,1650.00,Full Margin
+SKU-CLR-OUT-8007,UV Sunshade Camping Canopy 10x10,Outdoor Gear,160,6,85,800,48.00,120.00,7680.00,Clearance (35% Off)
+SKU-CLR-OUT-8008,Compact Lightweight Camp Chair,Outdoor Gear,50,25,15,60,19.00,48.00,950.00,Full Margin
+SKU-CLR-FIT-8009,Adjustable Dumbbell Weight Set 50lb,Fitness Gear,140,4,95,1050,68.00,175.00,9520.00,Clearance (35% Off)
+SKU-CLR-FIT-8010,Non-Slip High Density Yoga Mat,Fitness Gear,40,35,10,34,12.00,30.00,480.00,Full Margin`;
+			const file = new File([csv], 'warehouse_clearance_markdown.csv', { type: 'text/csv' });
 			await this.registerFile(file);
 		} else {
-			const csv = `date,symbol,open,high,low,close,volume
-2024-01-02,AAPL,187.15,188.44,183.89,185.64,82488700
-2024-01-03,AAPL,184.22,185.88,183.43,184.25,58414500
-2024-01-04,AAPL,182.15,183.09,180.88,181.91,71983600
-2024-01-05,AAPL,181.99,182.76,180.17,181.18,62303300
-2024-01-02,MSFT,373.86,376.22,369.84,370.87,25258600
-2024-01-03,MSFT,369.01,373.26,368.51,370.60,23083500
-2024-01-04,MSFT,370.67,373.10,367.17,367.94,20901500
-2024-01-05,MSFT,368.97,372.14,366.50,367.75,20982400
-2024-01-02,NVDA,492.58,499.97,476.90,481.68,41125400
-2024-01-03,NVDA,474.85,481.84,472.61,475.69,32089700
-2024-01-04,NVDA,477.67,485.00,475.08,479.98,30653500
-2024-01-05,NVDA,484.62,495.47,483.06,490.97,41456800`;
-			const file = new File([csv], 'tech_stocks.csv', { type: 'text/csv' });
+			const csv = `sku,product_name,category,abc_class,stock_on_hand,annual_demand_units,unit_cost,annual_consumption_value,carrying_cost_annual,lead_time_days,supplier
+SKU-ABC-ELC-3001,PCIe Gen4 NVMe SSD 2TB,Electronics,Class A,240,1850,145.00,268250.00,7656.00,10,Apex Industrial LLC
+SKU-ABC-ELC-3002,Cat-6A Shielded Cable 50m,Electronics,Class B,180,620,18.50,11470.00,732.60,18,Shenzhen Micro
+SKU-ABC-ELC-3003,Cable Tie Wraps 100pk,Electronics,Class C,850,180,3.20,576.00,598.40,30,Global Wholesale
+SKU-ABC-IND-3004,Hydraulic High-Pressure Flow Valve,Machinery,Class A,85,740,285.00,210900.00,5329.50,12,Kyoto Precision Co
+SKU-ABC-IND-3005,Precision Digital Sensor Module,Machinery,Class B,160,480,54.00,25920.00,1900.80,16,Kyoto Precision Co
+SKU-ABC-IND-3006,Stainless Flange Hex Bolt Pack,Machinery,Class C,1200,310,4.50,1395.00,1188.00,35,Global Wholesale
+SKU-ABC-MED-3007,Digital Ultrasound Probe Sensor,Medical Supplies,Class A,65,520,410.00,213200.00,5863.00,14,Nordic Diagnostics AS
+SKU-ABC-MED-3008,Adjustable Micropipette 1000uL,Medical Supplies,Class B,120,380,72.00,27360.00,1899.60,20,Nordic Diagnostics AS
+SKU-ABC-MED-3009,Disposable Tongue Depressors 500pk,Medical Supplies,Class C,950,140,5.80,812.00,1212.20,30,Global Wholesale`;
+			const file = new File([csv], 'inventory_abc_stratification.csv', { type: 'text/csv' });
 			await this.registerFile(file);
 		}
 	}

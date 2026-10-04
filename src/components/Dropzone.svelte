@@ -409,7 +409,7 @@
                     ? 'bg-[#18181b] dark:bg-white text-white dark:text-black shadow-xs'
                     : 'bg-neutral-100 dark:bg-white/[0.05] text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'}"
               >
-                {sample.domain}
+                {getPlaybookBadge(idx).label}
               </button>
             {/each}
           </div>
@@ -417,7 +417,7 @@
           <!-- Active Playbook Details Card -->
           <div class="flex items-center gap-2 mb-3">
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold {activeBadge.bg} {activeBadge.text} border {activeBadge.border}">
-              {activePlaybook.domain} Heuristic Model
+              {activeBadge.tag}
             </span>
             <span class="text-xs font-mono text-neutral-400 dark:text-neutral-500">&bull; {activePlaybook.filename}</span>
           </div>
@@ -432,18 +432,21 @@
 
           <!-- Heuristic Capabilities Chips -->
           <div class="mt-6 pt-5 border-t border-neutral-100 dark:border-white/[0.06] flex flex-wrap gap-2">
-            {#if activePlaybook.domain === 'Inventory'}
+            {#if activePlaybookIndex === 0}
               <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Stockout Risk Scoring</span>
               <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Holding Cost vs Turnover</span>
               <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Safety Stock Quantiles</span>
-            {:else if activePlaybook.domain === 'Sales'}
-              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Deal Win Rate Heuristics</span>
-              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Sales Cycle Velocity</span>
-              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">ARR Tier Clustering</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Supplier Lead Time Buffer</span>
+            {:else if activePlaybookIndex === 1}
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Dead Stock Liquidation (60% Off)</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Clearance Markdown Urgency</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Tied Working Capital Release</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Days Dormant Thresholds</span>
             {:else}
-              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Attrition Risk Heuristics</span>
-              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Comp Ratio Parity</span>
-              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Tenure Distribution</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Pareto 80/20 ABC Classification</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Class A Capital Driver Controls</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Annual Consumption Value</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Annual Carrying Cost Exposure</span>
             {/if}
           </div>
         </div>
@@ -451,7 +454,7 @@
         <!-- Launch Button with Button-in-Button Trailing Arrow -->
         <div class="mt-8 pt-6 border-t border-neutral-100 dark:border-white/[0.06] flex items-center justify-between">
           <div class="text-xs font-mono text-neutral-500 dark:text-neutral-400">
-            Synthesizes ~1,200 rows in client memory
+            Synthesizes ~1,200 inventory rows in client memory
           </div>
           <button
             type="button"
@@ -459,7 +462,7 @@
             disabled={isParsing}
             class="inline-flex items-center gap-2.5 pl-5 pr-2 py-2.5 rounded-full bg-[#18181b] dark:bg-white text-white dark:text-black font-semibold text-xs transition-all duration-150 active:scale-[0.98] shadow-xs hover:bg-neutral-800 dark:hover:bg-neutral-200 cursor-pointer disabled:opacity-50"
           >
-            <span>Launch {activePlaybook.domain} Benchmark</span>
+            <span>Launch {activeBadge.label} Demo</span>
             <span class="w-6 h-6 rounded-full bg-white/20 dark:bg-black/10 flex items-center justify-center">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="7" y1="17" x2="17" y2="7"></line>
@@ -519,22 +522,19 @@
                 </svg>
               </span>
               <div>
-                <span class="text-xs font-semibold text-[#18181b] dark:text-[#f4f4f5] block">Native Windows Desktop App</span>
-                <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Available as a standalone 21MB executable compiled with Tauri.</span>
+                <span class="text-xs font-semibold text-[#18181b] dark:text-[#f4f4f5] block">Zero Installation Required</span>
+                <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Pure web architecture running entirely in modern browsers via Web Workers and WASM.</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="mt-8 pt-5 border-t border-neutral-200 dark:border-white/[0.08]">
-          <a
-            href="/downloads/Decide.exe"
-            download="Decide.exe"
-            class="inline-flex items-center gap-2 text-xs font-mono font-semibold text-[#18181b] dark:text-[#f4f4f5] hover:underline"
-          >
-            <span>Download Desktop Build (Decide.exe)</span>
-            <span>&rarr;</span>
-          </a>
+        <div class="mt-8 pt-5 border-t border-neutral-200 dark:border-white/[0.08] flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 font-mono">
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            100% Client-Side Web Architecture
+          </span>
+          <span class="text-[11px]">No installation needed</span>
         </div>
       </div>
 

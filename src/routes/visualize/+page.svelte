@@ -20,7 +20,7 @@
 		await duckdbService.query(`SELECT * FROM "${tableName}" LIMIT 100;`);
 	}
 
-	async function handleLoadSample(type: 'iris' | 'sales' | 'stocks') {
+	async function handleLoadSample(type: 'restock' | 'clearance' | 'abc') {
 		sampleLoading = type;
 		try {
 			await duckdbService.loadSampleDataset(type);
@@ -130,44 +130,44 @@
 				<div class="flex flex-wrap items-center justify-center gap-3">
 					<button
 						type="button"
-						onclick={() => handleLoadSample('iris')}
+						onclick={() => handleLoadSample('restock')}
 						disabled={!!sampleLoading}
 						class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition-all shadow-2xs hover:scale-102 cursor-pointer disabled:opacity-50"
 					>
-						{#if sampleLoading === 'iris'}
+						{#if sampleLoading === 'restock'}
 							<Spinner class="size-3.5" />
 						{:else}
 							<TableIcon class="size-3.5 text-emerald-500" />
 						{/if}
-						<span>Iris Flowers</span>
+						<span>Warehouse Restock</span>
 					</button>
 
 					<button
 						type="button"
-						onclick={() => handleLoadSample('sales')}
+						onclick={() => handleLoadSample('clearance')}
 						disabled={!!sampleLoading}
 						class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition-all shadow-2xs hover:scale-102 cursor-pointer disabled:opacity-50"
 					>
-						{#if sampleLoading === 'sales'}
-							<Spinner class="size-3.5" />
-						{:else}
-							<TableIcon class="size-3.5 text-sky-500" />
-						{/if}
-						<span>Superstore Sales</span>
-					</button>
-
-					<button
-						type="button"
-						onclick={() => handleLoadSample('stocks')}
-						disabled={!!sampleLoading}
-						class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition-all shadow-2xs hover:scale-102 cursor-pointer disabled:opacity-50"
-					>
-						{#if sampleLoading === 'stocks'}
+						{#if sampleLoading === 'clearance'}
 							<Spinner class="size-3.5" />
 						{:else}
 							<TableIcon class="size-3.5 text-amber-500" />
 						{/if}
-						<span>Tech Stocks</span>
+						<span>Clearance & Overstock</span>
+					</button>
+
+					<button
+						type="button"
+						onclick={() => handleLoadSample('abc')}
+						disabled={!!sampleLoading}
+						class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition-all shadow-2xs hover:scale-102 cursor-pointer disabled:opacity-50"
+					>
+						{#if sampleLoading === 'abc'}
+							<Spinner class="size-3.5" />
+						{:else}
+							<TableIcon class="size-3.5 text-sky-500" />
+						{/if}
+						<span>ABC Stratification</span>
 					</button>
 				</div>
 

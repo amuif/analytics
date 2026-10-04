@@ -66,7 +66,7 @@ export interface StressTelemetry {
   totalRows: number;
   throughputRowsSec: number;
   stressLevel: 'low' | 'moderate' | 'high';
-  hardwareMode: 'WebGPU (Hardware Accelerated)' | 'WASM-SIMD (Multi-threaded)' | 'Native Rust/Tauri';
+  hardwareMode: 'WebGPU (Hardware Accelerated)' | 'WASM-SIMD (Multi-threaded)';
 }
 
 export interface ChartInsight {
