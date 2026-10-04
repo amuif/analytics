@@ -166,39 +166,78 @@ export const SAMPLE_DATASETS: SampleDatasetInfo[] = [
     },
   },
   {
-    name: 'B2B Sales Pipeline & Lead Velocity',
-    filename: 'enterprise_sales_q3_2026.csv',
-    description: '1,500 enterprise pipeline opportunities with deal size, stage, probability, and rep quotas.',
-    domain: 'Sales',
+    name: 'ABC Working Capital & Velocity Stratification',
+    filename: 'warehouse_abc_stratification.csv',
+    description: '1,200 SKUs classified into Pareto ABC tiers (Class A: High-turnover capital drivers, Class B: Core catalog, Class C: Low-frequency tail).',
+    domain: 'Inventory',
     generateRows: () => {
-      const stages = ['Discovery', 'Qualification', 'Demo Delivered', 'Proposal Review', 'Contract Negotiation', 'Closed Won', 'Closed Lost'];
-      const regions = ['North America', 'EMEA', 'APAC', 'LATAM'];
-      const reps = ['Alex Morgan', 'Marcus Vance', 'Sarah Chen', 'David Patel', 'Elena Rostova'];
+      const categories = [
+        'Electronics & Compute',
+        'Industrial & Machinery',
+        'Home & Smart Living',
+        'Automotive & Fleet',
+        'Medical & Lab Supplies',
+      ];
+      const zones = ['Zone A (High Velocity)', 'Zone B (Bulk Pallets)', 'Zone C (Cold Storage)', 'Zone D (Standard Racks)'];
+      const suppliers = [
+        'Shenzhen Micro Logistics (Tier 1)',
+        'Apex Industrial Components LLC',
+        'Nordic Medical Diagnostics AS',
+        'Kyoto Precision Engineering Co',
+        'Continental Automotive Parts GmbH',
+      ];
 
       const rows: Record<string, any>[] = [];
-      const count = 1500;
+      const count = 1200;
 
       for (let i = 1; i <= count; i++) {
-        const stage = stages[i % stages.length];
-        const region = regions[i % regions.length];
-        const rep = reps[i % reps.length];
-        const dealSize = 15000 + Math.floor(Math.random() * 185000);
-        const winProb = Number((0.1 + Math.random() * 0.85).toFixed(2));
-        const daysInPipeline = Math.floor(10 + Math.random() * 120);
-        const interactions = Math.floor(2 + Math.random() * 25);
-        const leadScore = Math.floor(30 + Math.random() * 70);
+        const cat = categories[i % categories.length];
+        const zone = zones[i % zones.length];
+        const supplier = suppliers[i % suppliers.length];
+
+        let abcClass: 'Class A' | 'Class B' | 'Class C';
+        let unitCost: number;
+        let annualDemand: number;
+        let leadTimeDays: number;
+        let safetyStockDays: number;
+
+        if (i % 6 === 0) {
+          abcClass = 'Class A';
+          unitCost = Number((120 + (i % 380)).toFixed(2));
+          annualDemand = 800 + Math.floor(Math.random() * 2400);
+          leadTimeDays = 7 + (i % 14);
+          safetyStockDays = 14;
+        } else if (i % 3 === 0) {
+          abcClass = 'Class B';
+          unitCost = Number((35 + (i % 90)).toFixed(2));
+          annualDemand = 250 + Math.floor(Math.random() * 700);
+          leadTimeDays = 14 + (i % 21);
+          safetyStockDays = 30;
+        } else {
+          abcClass = 'Class C';
+          unitCost = Number((4.5 + (i % 25)).toFixed(2));
+          annualDemand = 30 + Math.floor(Math.random() * 180);
+          leadTimeDays = 21 + (i % 35);
+          safetyStockDays = 60;
+        }
+
+        const annualConsumptionValue = Number((unitCost * annualDemand).toFixed(2));
+        const currentStock = Math.round((annualDemand / 365) * (leadTimeDays + safetyStockDays * 0.8));
+        const holdingCostAnnual = Number((currentStock * unitCost * 0.22).toFixed(2));
 
         rows.push({
-          Deal_ID: `DEAL-${20000 + i}`,
-          Company: `Client Corp ${i}`,
-          Sales_Rep: rep,
-          Region: region,
-          Stage: stage,
-          Deal_Size: dealSize,
-          Win_Probability: winProb,
-          Days_In_Pipeline: daysInPipeline,
-          Total_Interactions: interactions,
-          Lead_Score: leadScore,
+          SKU: `SKU-ABC-${cat.substring(0, 3).toUpperCase()}-${3000 + i}`,
+          Product_Name: `${cat} Component Item #${i}`,
+          Category: cat,
+          Warehouse_Zone: zone,
+          ABC_Class: abcClass,
+          Stock_On_Hand: currentStock,
+          Annual_Demand_Units: annualDemand,
+          Unit_Cost: unitCost,
+          Annual_Consumption_Value: annualConsumptionValue,
+          Carrying_Cost_Annual: holdingCostAnnual,
+          Lead_Time_Days: leadTimeDays,
+          Supplier: supplier,
         });
       }
       return rows;

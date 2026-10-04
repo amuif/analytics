@@ -165,7 +165,7 @@ function evaluateRowFast(
       if ((!isNaN(stock) && stock < reorder) || dos <= leadTime) {
         return {
           rowIndex,
-          choice: '🚨 Urgent Expedite (Stockout Risk)',
+          choice: 'Urgent Expedite (Stockout Risk)',
           confidence: 0.96,
           severity: 'critical',
           reasoningSummary: `Stock (${stock}) breached reorder point (${reorder}); ${dos}d supply left vs ${leadTime}d supplier lead time.`
@@ -173,7 +173,7 @@ function evaluateRowFast(
       } else if ((!isNaN(stock) && stock <= reorder * 1.35) || dos <= leadTime * 1.6) {
         return {
           rowIndex,
-          choice: '📦 Standard Reorder Needed',
+          choice: 'Standard Reorder Needed',
           confidence: 0.91,
           severity: 'high',
           reasoningSummary: `Approaching reorder threshold (${reorder} units); ${dos}d buffer remaining with ${leadTime}d lead time.`
@@ -181,7 +181,7 @@ function evaluateRowFast(
       } else if (dos > 140) {
         return {
           rowIndex,
-          choice: '⚠️ Overstocked Supply',
+          choice: 'Overstocked Supply',
           confidence: 0.88,
           severity: 'medium',
           reasoningSummary: `Excess safety buffer (${dos} days of supply); on-hand inventory (${stock}) exceeds quarterly demand run-rate.`
@@ -189,7 +189,7 @@ function evaluateRowFast(
       } else {
         return {
           rowIndex,
-          choice: '✅ Healthy Stock Velocity',
+          choice: 'Healthy Stock Velocity',
           confidence: 0.94,
           severity: 'low',
           reasoningSummary: `Balanced stock: ${stock} units on hand matches ${velocity} units/mo demand with safe buffer.`
@@ -205,7 +205,7 @@ function evaluateRowFast(
       if (dos >= 150 || daysDormant >= 120 || (!isNaN(stock) && stock > 100 && velocity < 8)) {
         return {
           rowIndex,
-          choice: '🔥 Dead Stock Liquidation (60% Off)',
+          choice: 'Dead Stock Liquidation (60% Off)',
           confidence: 0.95,
           severity: 'critical',
           reasoningSummary: `Stagnant inventory (${dos} days of supply) with near-zero run-rate; accumulating ${holdingCost}.`
@@ -213,7 +213,7 @@ function evaluateRowFast(
       } else if (dos >= 85 || daysDormant >= 60) {
         return {
           rowIndex,
-          choice: '🏷️ Clearance Markdown (30-40%)',
+          choice: 'Clearance Markdown (30-40%)',
           confidence: 0.90,
           severity: 'high',
           reasoningSummary: `Sluggish turnover (${dos} days of supply); recommend promotional markdown to release working capital.`
@@ -221,7 +221,7 @@ function evaluateRowFast(
       } else if (dos >= 50) {
         return {
           rowIndex,
-          choice: '📦 Promotional Bundle',
+          choice: 'Promotional Bundle',
           confidence: 0.86,
           severity: 'medium',
           reasoningSummary: `Moderate overstock (${dos}d supply); optimal candidate for multi-pack bundling or catalog promo.`
@@ -229,7 +229,7 @@ function evaluateRowFast(
       } else {
         return {
           rowIndex,
-          choice: '💎 Retain Full Margin',
+          choice: 'Retain Full Margin',
           confidence: 0.92,
           severity: 'low',
           reasoningSummary: `Lean inventory turnover (${dos}d supply); high sell-through rate justifies full margin retention.`

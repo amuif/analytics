@@ -2,6 +2,11 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --font-sans: 'Google Sans', 'Google Sans Flex', 'Google Sans Text', 'Product Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Google Sans Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 @layer base {
   :root {
     --figma-black: #000000;
@@ -25,22 +30,22 @@
     --figma-hairline-soft: #222222;
   }
 
-  body {
-    background-color: #ffffff;
-    color: #000000;
-    font-family: "Google Sans Flex", "Google Sans", "Product Sans", system-ui, -apple-system, sans-serif;
+  html, body {
+    background-color: #fafafa;
+    color: #18181b;
+    font-family: 'Google Sans', 'Google Sans Flex', 'Google Sans Text', 'Product Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     selection-background-color: #c5b0f4;
-    selection-color: #000000;
+    selection-color: #18181b;
     min-height: 100vh;
     transition: background-color 200ms ease, color 200ms ease;
   }
 
   .dark body {
-    background-color: #0d0d0d;
-    color: #ffffff;
-    selection-background-color: #ff3d8b;
+    background-color: #0c0c0e;
+    color: #f4f4f5;
+    selection-background-color: #3b82f6;
     selection-color: #ffffff;
   }
 
@@ -88,4 +93,17 @@
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #555555;
+}
+
+@keyframes taste-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-taste-shimmer {
+  animation: taste-shimmer 1.8s infinite ease-in-out;
 }

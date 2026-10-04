@@ -9,7 +9,7 @@ export const BUILTIN_PRESETS: Record<BusinessDomain, DecisionPreset[]> = {
       description: 'Evaluates stock-on-hand against sales run-rate, reorder triggers, and supplier lead times to prevent stockouts.',
       targetQuestion: 'What operational replenishment priority is required for this product SKU?',
       outputType: 'choice',
-      choices: ['🚨 Urgent Expedite (Stockout Risk)', '📦 Standard Reorder Needed', '✅ Healthy Stock Velocity', '⚠️ Overstocked Supply'],
+      choices: ['Urgent Expedite (Stockout Risk)', 'Standard Reorder Needed', 'Healthy Stock Velocity', 'Overstocked Supply'],
       criteria: 'stock, on_hand, reorder, velocity, sales, lead_time, supply, days_of_supply',
     },
     {
@@ -19,7 +19,7 @@ export const BUILTIN_PRESETS: Record<BusinessDomain, DecisionPreset[]> = {
       description: 'Identifies sluggish inventory consuming warehouse space and calculates markdown discount urgency.',
       targetQuestion: 'What pricing or clearance action should be executed for this slow-moving inventory?',
       outputType: 'choice',
-      choices: ['🔥 Dead Stock Liquidation (60% Off)', '🏷️ Clearance Markdown (30-40%)', '📦 Promotional Bundle', '💎 Retain Full Margin'],
+      choices: ['Dead Stock Liquidation (60% Off)', 'Clearance Markdown (30-40%)', 'Promotional Bundle', 'Retain Full Margin'],
       criteria: 'days_of_supply, stock, velocity, holding_cost, age, turnover, unit_cost',
     },
     {

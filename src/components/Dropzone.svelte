@@ -8,21 +8,37 @@
   let isDragging = $state(false);
   let isParsing = $state(false);
   let statusMessage = $state('');
+  let currentStep = $state(1);
   let errorMessage = $state('');
+  let activePlaybookIndex = $state(0);
+
+  const activePlaybook = $derived(SAMPLE_DATASETS[activePlaybookIndex] || SAMPLE_DATASETS[0]);
+  const activeBadge = $derived(getPlaybookBadge(activePlaybookIndex));
 
   async function handleFileSelect(file: File) {
     if (!file) return;
 
     isParsing = true;
     errorMessage = '';
-    statusMessage = `Reading and parsing ${file.name}...`;
+    currentStep = 1;
+    statusMessage = `Reading binary stream from ${file.name}...`;
 
     try {
+      await new Promise(r => setTimeout(r, 120));
+      currentStep = 2;
+      statusMessage = `Parsing rows & normalizing dimensional schemas...`;
+
       const result = await parseDataFile(file);
+
+      currentStep = 3;
+      statusMessage = `Computing distribution quantiles & domain heuristics...`;
+      await new Promise(r => setTimeout(r, 150));
+
+      currentStep = 4;
       statusMessage = `Persisting ${result.rows.length.toLocaleString()} rows into client IndexedDB...`;
       await db.saveDataset(result.summary, result.rows, result.charts);
 
-      statusMessage = 'Finalizing charts and domain heuristics...';
+      await new Promise(r => setTimeout(r, 120));
       onDataParsed(result);
     } catch (err: any) {
       console.error('File parsing error:', err);
@@ -30,6 +46,7 @@
     } finally {
       isParsing = false;
       statusMessage = '';
+      currentStep = 1;
     }
   }
 
@@ -61,9 +78,12 @@
   async function loadSample(sample: SampleDatasetInfo) {
     isParsing = true;
     errorMessage = '';
-    statusMessage = `Generating synthetic ${sample.name} (${sample.domain})...`;
+    currentStep = 1;
+    statusMessage = `Synthesizing ${sample.name} benchmark (${sample.domain})...`;
 
     try {
+      await new Promise(r => setTimeout(r, 100));
+      currentStep = 2;
       const rows = sample.generateRows();
       const headers = Object.keys(rows[0]);
       const csvLines = [
@@ -83,140 +103,488 @@
     }
   }
 
-  // Figma Pastel Themes for sample datasets (Light & Dark)
-  function getSampleTheme(domain: string) {
-    if (domain === 'Inventory' || domain === 'inventory') return 'bg-[#c8e6cd] dark:bg-[#18291d] dark:border-[#325638]'; // Figma Mint
-    if (domain === 'Sales') return 'bg-[#c5b0f4] dark:bg-[#251b3d] dark:border-[#4d377b]'; // Lilac
-    if (domain === 'HR') return 'bg-[#dceeb1] dark:bg-[#1e2d14] dark:border-[#3c5427]'; // Lime
-    return 'bg-[#f3c9b6] dark:bg-[#381f17] dark:border-[#733e2c]'; // Coral
+  function getPlaybookBadge(index: number) {
+    if (index === 0) {
+      return {
+        label: 'Restock Triage',
+        tag: 'Inventory Restock',
+        bg: 'bg-[#c8e6cd] dark:bg-[#18291d]',
+        text: 'text-[#1d3d23] dark:text-[#a3e4ae]',
+        border: 'border-[#a8d9af] dark:border-[#2a4e32]'
+      };
+    }
+    if (index === 1) {
+      return {
+        label: 'Clearance & Dead Stock',
+        tag: 'Overstock & Aging',
+        bg: 'bg-[#f3c9b6] dark:bg-[#381f17]',
+        text: 'text-[#4a2215] dark:text-[#f8bda3]',
+        border: 'border-[#e8ab92] dark:border-[#52291d]'
+      };
+    }
+    return {
+      label: 'ABC Stratification',
+      tag: 'Capital & Pareto Tiers',
+      bg: 'bg-[#c5b0f4] dark:bg-[#251b3d]',
+      text: 'text-[#351b66] dark:text-[#d7cbfa]',
+      border: 'border-[#ab8ff0] dark:border-[#452e72]'
+    };
   }
 </script>
 
-<div class="w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
-  <!-- Figma Promo & Download Badges -->
-  <div class="flex flex-wrap items-center justify-center gap-2 mb-4 sm:mb-6">
-    <div class="inline-flex items-center px-3.5 sm:px-4 py-1.5 rounded-full bg-[#ff3d8b] text-white text-[11px] sm:text-[12px] font-medium shadow-sm text-center">
-      <span>100% Client-Side Privacy &bull; Zero Server Network Calls</span>
-    </div>
-    <a
-      href="/downloads/Decide.exe"
-      download="Decide.exe"
-      class="inline-flex items-center px-3.5 sm:px-4 py-1.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-[11px] sm:text-[12px] font-mono font-semibold transition-all shadow-sm text-center"
-      title="Download standalone Windows desktop executable (21.4 MB)"
-    >
-      <span>Download Desktop App</span>
-    </a>
-  </div>
-
-  <!-- Editorial Headline in Figma Typography Scale -->
-  <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-    <h1 class="text-[36px] sm:text-[56px] md:text-[76px] font-normal leading-[1.05] tracking-[-1.5px] text-black dark:text-white">
-      Decide with data.
-    </h1>
-    <p class="mt-3.5 sm:mt-5 text-[16px] sm:text-[20px] md:text-[22px] font-light text-neutral-600 dark:text-neutral-400 leading-snug tracking-[-0.26px]">
-      Upload your inventory, warehouse stock, or business spreadsheets. We ingest them locally, auto-build visual distributions, and trigger non-autoregressive decision models in your browser.
-    </p>
-  </div>
-
-  <!-- Pastel Dropzone Block (Figma Mint Canvas - Adapted for Light & Dark) -->
-  <label
-    for="file-upload"
-    ondragover={handleDragOver}
-    ondragleave={handleDragLeave}
-    ondrop={handleDrop}
-    class="w-full relative flex flex-col items-center justify-center p-6 sm:p-12 md:p-16 rounded-[20px] sm:rounded-[24px] cursor-pointer transition-all duration-200 border-2 border-dashed
-      {isDragging
-        ? 'bg-[#bfe0c5] dark:bg-[#233d28] border-black dark:border-white scale-[1.01]'
-        : 'bg-[#c8e6cd] dark:bg-[#18291d] border-black/40 dark:border-[#528f5c]/50 hover:border-black dark:hover:border-[#7bc888]'}"
-  >
-    <input
-      id="file-upload"
-      type="file"
-      accept=".csv,.xlsx,.xls,.tsv,.txt"
-      class="hidden"
-      onchange={onFileInputChange}
-      disabled={isParsing}
-    />
-
-    {#if isParsing}
-      <div class="flex flex-col items-center gap-4 text-black dark:text-white text-center">
-        <span class="inline-block w-8 h-8 sm:w-10 sm:h-10 border-2 border-black dark:border-white border-t-transparent dark:border-t-transparent rounded-full animate-spin"></span>
-        <p class="text-base sm:text-lg font-medium tracking-tight">{statusMessage || 'Processing dataset...'}</p>
-        <span class="text-xs font-mono text-neutral-700 dark:text-neutral-300">Executing client-side parser & IndexedDB storage...</span>
+<div class="w-full max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+  <!-- ========================================== -->
+  <!-- 01. ASYMMETRIC SPLIT HERO SECTION          -->
+  <!-- ========================================== -->
+  <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+    
+    <!-- LEFT COLUMN: Editorial & Value Proposition (Span 7) -->
+    <div class="lg:col-span-7 flex flex-col justify-center">
+      
+      <!-- Eyebrow Badge (Concentric Pill with Pulsing Live Status) -->
+      <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-neutral-100 dark:bg-white/[0.05] border border-neutral-200/90 dark:border-white/10 text-xs font-mono text-neutral-800 dark:text-neutral-200 w-fit mb-5 shadow-xs">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="font-semibold tracking-tight">LOCAL-FIRST RUNTIME</span>
+        <span class="text-neutral-300 dark:text-neutral-600">•</span>
+        <span class="text-neutral-500 dark:text-neutral-400">100% PRIVATE</span>
+        <span class="text-neutral-300 dark:text-neutral-600">•</span>
+        <span class="text-neutral-500 dark:text-neutral-400">ZERO EGRESS</span>
       </div>
-    {:else}
-      <div class="flex flex-col items-center text-center text-black dark:text-white">
-        <p class="text-[18px] sm:text-[22px] md:text-[24px] font-medium tracking-tight text-black dark:text-white">
-          Drop your dataset here, or <span class="underline decoration-black dark:decoration-white underline-offset-4 font-semibold">browse</span>
-        </p>
-        <p class="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 mt-2 max-w-md">
-          Supports Inventory, Warehouse, ERP & Sales files (.xlsx, .xls, .csv, .tsv) up to 10,000+ rows.
-        </p>
 
-        <!-- Figma Pill Badges (Pure Typography) -->
-        <div class="flex flex-wrap items-center justify-center gap-2 mt-5 sm:mt-6">
-          <span class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-[11px] sm:text-xs font-mono font-medium">
-            .XLSX / .XLS
-          </span>
-          <span class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white dark:bg-[#121212] text-black dark:text-white border border-black dark:border-[#444444] text-[11px] sm:text-xs font-mono font-medium">
-            .CSV / .TSV
-          </span>
+      <!-- Main Editorial Headline (Track-Tight Scale Hierarchy) -->
+      <h1 class="text-4xl sm:text-5xl lg:text-[62px] font-semibold leading-[1.05] tracking-[-0.035em] text-[#18181b] dark:text-[#f4f4f5]">
+        Decide with data.
+        <span class="block font-normal text-neutral-500 dark:text-neutral-400 mt-2 text-2xl sm:text-3xl lg:text-[42px] leading-tight">
+          Instant decision models, right in your browser.
+        </span>
+      </h1>
+
+      <!-- Functional Body Description (65ch Max Width) -->
+      <p class="mt-5 text-base sm:text-lg text-[#71717a] dark:text-[#a1a1aa] leading-relaxed max-w-[62ch]">
+        Drop your inventory logs, sales velocity matrices, or workforce metrics. Decide normalizes schema headers, computes distribution curves, and applies statistical heuristics — with zero cloud network calls.
+      </p>
+
+      <!-- Hardware & Performance Telemetry Ribbon -->
+      <div class="mt-8 grid grid-cols-3 gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-neutral-100/70 dark:bg-white/[0.03] border border-neutral-200/80 dark:border-white/[0.08] max-w-xl">
+        <div class="flex flex-col">
+          <span class="text-xs font-mono text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Latency</span>
+          <span class="text-lg sm:text-xl font-bold font-mono text-[#18181b] dark:text-[#f4f4f5] mt-0.5">0 ms</span>
+          <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Air-gapped compute</span>
+        </div>
+        <div class="flex flex-col border-l border-neutral-200 dark:border-white/10 pl-3 sm:pl-4">
+          <span class="text-xs font-mono text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Capacity</span>
+          <span class="text-lg sm:text-xl font-bold font-mono text-[#18181b] dark:text-[#f4f4f5] mt-0.5">100k+</span>
+          <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Rows in WebWorker</span>
+        </div>
+        <div class="flex flex-col border-l border-neutral-200 dark:border-white/10 pl-3 sm:pl-4">
+          <span class="text-xs font-mono text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Storage</span>
+          <span class="text-lg sm:text-xl font-bold font-mono text-[#18181b] dark:text-[#f4f4f5] mt-0.5">IndexedDB</span>
+          <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Client-persisted</span>
         </div>
       </div>
-    {/if}
-  </label>
 
-  <!-- Error Banner (Pure Typography) -->
-  {#if errorMessage}
-    <div class="w-full mt-5 sm:mt-6 flex items-center gap-2.5 p-4 rounded-[16px] bg-[#efd4d4] dark:bg-[#3d1f1f] border border-black dark:border-rose-500 text-black dark:text-white text-xs font-medium">
-      <span class="font-mono font-bold uppercase text-[10px]">Error:</span>
-      <span>{errorMessage}</span>
-    </div>
-  {/if}
-
-  <!-- 1-Click Sample Datasets (Figma Pastel Blocks) -->
-  <div class="w-full mt-12 sm:mt-16 pt-8 sm:pt-10 border-t border-[#e6e6e6] dark:border-[#222222]">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5 sm:mb-6">
-      <div>
-        <h2 class="text-xs font-mono uppercase tracking-wider font-bold text-black dark:text-white">
-          Quick Start with Sample Datasets
-        </h2>
-      </div>
-      <span class="text-xs font-mono text-neutral-500 dark:text-neutral-400">1,000+ rows each</span>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-      {#each SAMPLE_DATASETS as sample}
-        <div
-          class="flex flex-col justify-between p-5 sm:p-7 rounded-[20px] sm:rounded-[24px] border transition-all duration-200 {getSampleTheme(sample.domain)}"
-        >
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-xs font-mono uppercase tracking-wider font-semibold text-neutral-800 dark:text-neutral-200">
-                {sample.domain} Playbook
-              </span>
-            </div>
-            <h3 class="text-[18px] sm:text-[20px] font-medium leading-tight text-black dark:text-white tracking-tight">
-              {sample.name}
-            </h3>
-            <p class="text-xs text-neutral-700 dark:text-neutral-300 mt-2.5 leading-relaxed">
-              {sample.description}
-            </p>
-          </div>
-
-          <!-- Figma Pill Button (Dark Mode Inverting) -->
-          <div class="mt-5 sm:mt-6 pt-4 border-t border-black/10 dark:border-white/10">
+      <!-- Quick Playbook Shortcuts (Tactile nested pill triggers) -->
+      <div class="mt-8">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-xs font-mono font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+            Quick Load Inventory Playbook:
+          </span>
+        </div>
+        <div class="flex flex-wrap gap-2.5">
+          {#each SAMPLE_DATASETS as sample, idx}
+            {@const badge = getPlaybookBadge(idx)}
             <button
               type="button"
               onclick={() => loadSample(sample)}
               disabled={isParsing}
-              class="w-full inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
+              class="group inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full border border-neutral-200/90 dark:border-white/10 bg-white dark:bg-[#18181b] hover:border-neutral-400 dark:hover:border-neutral-600 text-xs font-medium text-[#18181b] dark:text-[#f4f4f5] transition-all duration-150 active:scale-[0.98] shadow-xs cursor-pointer disabled:opacity-50"
             >
-              <span>Load {sample.domain} Demo</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold {badge.bg} {badge.text} border {badge.border}">
+                {badge.label}
+              </span>
+              <span class="font-sans font-medium">{sample.name.split('&')[0].trim()}</span>
+              <span class="w-6 h-6 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 dark:text-neutral-400 group-hover:bg-[#18181b] group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="7" y1="17" x2="17" y2="7"></line>
+                  <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
+              </span>
             </button>
+          {/each}
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Double-Bezel Tactile Dropzone (Span 5) -->
+    <div class="lg:col-span-5 flex flex-col justify-center">
+      
+      <!-- Double-Bezel Machined Outer Enclosure -->
+      <div class="relative w-full rounded-[2.5rem] p-2.5 sm:p-3 bg-neutral-200/40 dark:bg-white/[0.04] border border-neutral-300/80 dark:border-white/[0.08] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.06)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all duration-200">
+        
+        <!-- Double-Bezel Inner Core Interactive Box -->
+        <label
+          for="file-upload"
+          ondragover={handleDragOver}
+          ondragleave={handleDragLeave}
+          ondrop={handleDrop}
+          class="w-full relative flex flex-col items-center justify-center min-h-[380px] sm:min-h-[420px] p-6 sm:p-8 rounded-[calc(2.5rem-0.75rem)] cursor-pointer transition-all duration-200 border-2 border-dashed
+            {isDragging
+              ? 'bg-blue-50/60 dark:bg-blue-950/20 border-blue-500 dark:border-blue-400 scale-[0.99]'
+              : 'bg-white dark:bg-[#141417] border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600'}"
+        >
+          <input
+            id="file-upload"
+            type="file"
+            accept=".csv,.xlsx,.xls,.tsv,.txt"
+            class="hidden"
+            onchange={onFileInputChange}
+            disabled={isParsing}
+          />
+
+          {#if isParsing}
+            <!-- High-End Skeletal Shimmer & Progress Telemetry (No circular spinner) -->
+            <div class="w-full max-w-sm flex flex-col items-center text-center p-4">
+              <!-- Active Step Pulsing Graphic -->
+              <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="animate-pulse">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+
+              <!-- Live Status Message -->
+              <h3 class="text-base font-semibold text-[#18181b] dark:text-[#f4f4f5] tracking-tight">
+                {statusMessage || 'Processing dataset...'}
+              </h3>
+              <p class="text-xs font-mono text-neutral-500 dark:text-neutral-400 mt-1">
+                Executing client-side worker pipeline
+              </p>
+
+              <!-- Skeletal Shimmer Telemetry Bar -->
+              <div class="w-full mt-6 h-2 rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden relative border border-neutral-200/60 dark:border-white/10">
+                <div class="absolute inset-0 bg-blue-500 animate-taste-shimmer rounded-full"></div>
+              </div>
+
+              <!-- Multi-Stage Pipeline Checklist -->
+              <div class="w-full mt-6 space-y-2 text-left">
+                <div class="flex items-center justify-between text-xs font-mono py-1 border-b border-neutral-100 dark:border-white/[0.04]">
+                  <span class="text-neutral-500 dark:text-neutral-400">1. Buffer Ingestion</span>
+                  <span class={currentStep >= 1 ? 'text-emerald-500 font-bold' : 'text-neutral-400'}>
+                    {currentStep > 1 ? 'DONE' : currentStep === 1 ? 'RUNNING' : 'QUEUED'}
+                  </span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-mono py-1 border-b border-neutral-100 dark:border-white/[0.04]">
+                  <span class="text-neutral-500 dark:text-neutral-400">2. Normalization & Profiling</span>
+                  <span class={currentStep >= 2 ? 'text-emerald-500 font-bold' : 'text-neutral-400'}>
+                    {currentStep > 2 ? 'DONE' : currentStep === 2 ? 'RUNNING' : 'QUEUED'}
+                  </span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-mono py-1 border-b border-neutral-100 dark:border-white/[0.04]">
+                  <span class="text-neutral-500 dark:text-neutral-400">3. Distribution & IQR Heuristics</span>
+                  <span class={currentStep >= 3 ? 'text-emerald-500 font-bold' : 'text-neutral-400'}>
+                    {currentStep > 3 ? 'DONE' : currentStep === 3 ? 'RUNNING' : 'QUEUED'}
+                  </span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-mono py-1">
+                  <span class="text-neutral-500 dark:text-neutral-400">4. IndexedDB Client Sync</span>
+                  <span class={currentStep >= 4 ? 'text-emerald-500 font-bold' : 'text-neutral-400'}>
+                    {currentStep >= 4 ? 'SYNCING' : 'QUEUED'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          {:else}
+            <!-- Idle Upload Zone Architecture -->
+            <div class="flex flex-col items-center text-center">
+              
+              <!-- Machined Hardware Deposit Icon -->
+              <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-neutral-100 dark:bg-white/[0.05] border border-neutral-200/90 dark:border-white/10 flex items-center justify-center text-neutral-700 dark:text-neutral-300 mb-5 shadow-xs transition-transform duration-200 group-hover:scale-105">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-[#18181b] dark:text-[#f4f4f5]">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+
+              <!-- Main Drop Callout -->
+              <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-[#18181b] dark:text-[#f4f4f5]">
+                Drop your spreadsheet here
+              </h2>
+              <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-2 max-w-xs leading-relaxed">
+                Drag and drop your file into this box, or choose a file from your hard drive.
+              </p>
+
+              <!-- Tactile Button-in-Button Action Pill -->
+              <div class="mt-6">
+                <div class="inline-flex items-center gap-2 pl-5 pr-2 py-2.5 rounded-full bg-[#18181b] dark:bg-white text-white dark:text-black font-semibold text-xs transition-all duration-150 active:scale-[0.98] shadow-sm hover:bg-neutral-800 dark:hover:bg-neutral-200">
+                  <span>Browse Local File</span>
+                  <span class="w-6 h-6 rounded-full bg-white/20 dark:bg-black/10 flex items-center justify-center">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M5 12h14"></path>
+                      <path d="m12 5 7 7-7 7"></path>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Supported Formats Badges -->
+              <div class="flex items-center gap-1.5 mt-6">
+                <span class="px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-white/[0.05] border border-neutral-200 dark:border-white/10 text-[10px] font-mono text-neutral-600 dark:text-neutral-400">.XLSX</span>
+                <span class="px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-white/[0.05] border border-neutral-200 dark:border-white/10 text-[10px] font-mono text-neutral-600 dark:text-neutral-400">.CSV</span>
+                <span class="px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-white/[0.05] border border-neutral-200 dark:border-white/10 text-[10px] font-mono text-neutral-600 dark:text-neutral-400">.TSV</span>
+                <span class="px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-white/[0.05] border border-neutral-200 dark:border-white/10 text-[10px] font-mono text-neutral-600 dark:text-neutral-400">.XLS</span>
+              </div>
+
+              <!-- Air-gap guarantee badge -->
+              <div class="mt-4 flex items-center gap-1.5 text-[11px] font-mono text-neutral-400 dark:text-neutral-500">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
+                </svg>
+                <span>Zero bytes sent over network</span>
+              </div>
+            </div>
+          {/if}
+        </label>
+      </div>
+
+      <!-- Contextual Error Callout Banner -->
+      {#if errorMessage}
+        <div class="w-full mt-4 flex items-start gap-3 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 text-[#18181b] dark:text-[#f4f4f5]">
+          <div class="w-5 h-5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <div class="flex-1 text-xs">
+            <span class="font-mono font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 block mb-0.5">Parsing Failed</span>
+            <span class="text-neutral-700 dark:text-neutral-300 leading-relaxed">{errorMessage}</span>
           </div>
         </div>
-      {/each}
+      {/if}
     </div>
-  </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 02. ASYMMETRICAL BENTO PLAYBOOK EXPLORER   -->
+  <!-- ========================================== -->
+  <section class="mt-16 sm:mt-24 pt-12 border-t border-neutral-200/80 dark:border-white/[0.08]">
+    
+    <!-- Section Eyebrow Header -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+      <div>
+        <div class="text-xs font-mono uppercase tracking-[0.2em] font-semibold text-neutral-400 dark:text-neutral-500 mb-1.5">
+          LAYER 02 • PRE-BUILT PLAYBOOKS & ARCHITECTURE
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-[#18181b] dark:text-[#f4f4f5]">
+          Explore synthetic industry benchmarks
+        </h2>
+      </div>
+      <div class="text-xs font-mono text-neutral-500 dark:text-neutral-400">
+        1,000+ rows each &bull; Instantly simulated
+      </div>
+    </div>
+
+    <!-- Asymmetric Bento Grid (Col 7 / Col 5 / Col 12) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+      
+      <!-- Bento Tile 1: Interactive Playbook Spotlight (Col 7) -->
+      <div class="lg:col-span-7 flex flex-col justify-between p-6 sm:p-8 rounded-[2rem] bg-white dark:bg-[#141417] border border-neutral-200/90 dark:border-white/[0.08] shadow-[0_15px_40px_-15px_rgba(0,0,0,0.04)]">
+        <div>
+          <!-- Tabbed Domain Selector Pills -->
+          <div class="flex flex-wrap gap-2 mb-6">
+            {#each SAMPLE_DATASETS as sample, idx}
+              {@const isSelected = activePlaybookIndex === idx}
+              <button
+                type="button"
+                onclick={() => activePlaybookIndex = idx}
+                class="px-3.5 py-1.5 rounded-full text-xs font-mono font-medium transition-all duration-150 cursor-pointer
+                  {isSelected
+                    ? 'bg-[#18181b] dark:bg-white text-white dark:text-black shadow-xs'
+                    : 'bg-neutral-100 dark:bg-white/[0.05] text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'}"
+              >
+                {sample.domain}
+              </button>
+            {/each}
+          </div>
+
+          <!-- Active Playbook Details Card -->
+          <div class="flex items-center gap-2 mb-3">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold {activeBadge.bg} {activeBadge.text} border {activeBadge.border}">
+              {activePlaybook.domain} Heuristic Model
+            </span>
+            <span class="text-xs font-mono text-neutral-400 dark:text-neutral-500">&bull; {activePlaybook.filename}</span>
+          </div>
+
+          <h3 class="text-xl sm:text-2xl font-semibold text-[#18181b] dark:text-[#f4f4f5] tracking-tight">
+            {activePlaybook.name}
+          </h3>
+
+          <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-xl">
+            {activePlaybook.description}
+          </p>
+
+          <!-- Heuristic Capabilities Chips -->
+          <div class="mt-6 pt-5 border-t border-neutral-100 dark:border-white/[0.06] flex flex-wrap gap-2">
+            {#if activePlaybook.domain === 'Inventory'}
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Stockout Risk Scoring</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Holding Cost vs Turnover</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Safety Stock Quantiles</span>
+            {:else if activePlaybook.domain === 'Sales'}
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Deal Win Rate Heuristics</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Sales Cycle Velocity</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">ARR Tier Clustering</span>
+            {:else}
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Attrition Risk Heuristics</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Comp Ratio Parity</span>
+              <span class="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/[0.04] text-[11px] font-mono text-neutral-700 dark:text-neutral-300">Tenure Distribution</span>
+            {/if}
+          </div>
+        </div>
+
+        <!-- Launch Button with Button-in-Button Trailing Arrow -->
+        <div class="mt-8 pt-6 border-t border-neutral-100 dark:border-white/[0.06] flex items-center justify-between">
+          <div class="text-xs font-mono text-neutral-500 dark:text-neutral-400">
+            Synthesizes ~1,200 rows in client memory
+          </div>
+          <button
+            type="button"
+            onclick={() => loadSample(activePlaybook)}
+            disabled={isParsing}
+            class="inline-flex items-center gap-2.5 pl-5 pr-2 py-2.5 rounded-full bg-[#18181b] dark:bg-white text-white dark:text-black font-semibold text-xs transition-all duration-150 active:scale-[0.98] shadow-xs hover:bg-neutral-800 dark:hover:bg-neutral-200 cursor-pointer disabled:opacity-50"
+          >
+            <span>Launch {activePlaybook.domain} Benchmark</span>
+            <span class="w-6 h-6 rounded-full bg-white/20 dark:bg-black/10 flex items-center justify-center">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
+              </svg>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bento Tile 2: Air-Gapped Privacy Architecture (Col 5) -->
+      <div class="lg:col-span-5 flex flex-col justify-between p-6 sm:p-8 rounded-[2rem] bg-neutral-100/70 dark:bg-white/[0.03] border border-neutral-200/90 dark:border-white/[0.08] shadow-[0_15px_40px_-15px_rgba(0,0,0,0.04)]">
+        <div>
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-5">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+          </div>
+
+          <h3 class="text-xl font-semibold text-[#18181b] dark:text-[#f4f4f5] tracking-tight">
+            Air-Gapped Client Security
+          </h3>
+          <p class="mt-2.5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+            Enterprise analytics often expose proprietary financial and payroll data to external cloud APIs. Decide executes 100% inside your local machine.
+          </p>
+
+          <div class="mt-6 space-y-3.5">
+            <div class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-neutral-200/70 dark:bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-700 dark:text-neutral-300">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+              <div>
+                <span class="text-xs font-semibold text-[#18181b] dark:text-[#f4f4f5] block">Zero Server Network Egress</span>
+                <span class="text-[11px] text-neutral-500 dark:text-neutral-400">No telemetry or payload packets leave your browser sandbox.</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-neutral-200/70 dark:bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-700 dark:text-neutral-300">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+              <div>
+                <span class="text-xs font-semibold text-[#18181b] dark:text-[#f4f4f5] block">Encrypted IndexedDB Persistence</span>
+                <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Datasets remain saved locally across page reloads without cloud databases.</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-neutral-200/70 dark:bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-700 dark:text-neutral-300">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+              <div>
+                <span class="text-xs font-semibold text-[#18181b] dark:text-[#f4f4f5] block">Native Windows Desktop App</span>
+                <span class="text-[11px] text-neutral-500 dark:text-neutral-400">Available as a standalone 21MB executable compiled with Tauri.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-5 border-t border-neutral-200 dark:border-white/[0.08]">
+          <a
+            href="/downloads/Decide.exe"
+            download="Decide.exe"
+            class="inline-flex items-center gap-2 text-xs font-mono font-semibold text-[#18181b] dark:text-[#f4f4f5] hover:underline"
+          >
+            <span>Download Desktop Build (Decide.exe)</span>
+            <span>&rarr;</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Bento Tile 3: Full-Width Capabilities Ribbon (Col 12) -->
+      <div class="lg:col-span-12 p-6 sm:p-8 rounded-[2rem] bg-white dark:bg-[#141417] border border-neutral-200/90 dark:border-white/[0.08] shadow-[0_15px_40px_-15px_rgba(0,0,0,0.04)]">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <div class="flex flex-col">
+            <div class="flex items-center gap-2 text-xs font-mono font-semibold text-neutral-800 dark:text-neutral-200 mb-1.5">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              <span>HEURISTIC INFERENCE</span>
+            </div>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
+              Auto-detects semantic schemas (SKUs, currency, dates, velocity) without manual schema mapping.
+            </p>
+          </div>
+
+          <div class="flex flex-col">
+            <div class="flex items-center gap-2 text-xs font-mono font-semibold text-neutral-800 dark:text-neutral-200 mb-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>STATISTICAL DISTRIBUTIONS</span>
+            </div>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
+              Evaluates Pareto 80/20 curves, continuous quantiles, and IQR anomaly thresholds automatically.
+            </p>
+          </div>
+
+          <div class="flex flex-col">
+            <div class="flex items-center gap-2 text-xs font-mono font-semibold text-neutral-800 dark:text-neutral-200 mb-1.5">
+              <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+              <span>TRIAGE STRESS METER</span>
+            </div>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
+              Identifies critical operational anomalies, runaway holding costs, or pipeline stalls in real-time.
+            </p>
+          </div>
+
+          <div class="flex flex-col">
+            <div class="flex items-center gap-2 text-xs font-mono font-semibold text-neutral-800 dark:text-neutral-200 mb-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>MULTI-FORMAT INGESTION</span>
+            </div>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
+              Supports `.xlsx`, `.xls`, `.csv`, `.tsv` workbooks with multiple sheets and dirty headers.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
 </div>

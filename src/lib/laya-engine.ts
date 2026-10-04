@@ -111,7 +111,7 @@ export class LayaDecisionEngine {
           if ((!isNaN(stock) && stock < reorder) || dos <= leadTime) {
             decisions.push({
               rowIndex: i,
-              choice: '🚨 Urgent Expedite (Stockout Risk)',
+              choice: 'Urgent Expedite (Stockout Risk)',
               confidence: 0.96,
               severity: 'critical',
               reasoningSummary: `Stock (${stock}) breached reorder point (${reorder}); ${dos}d supply left vs ${leadTime}d supplier lead time.`
@@ -120,7 +120,7 @@ export class LayaDecisionEngine {
           } else if ((!isNaN(stock) && stock <= reorder * 1.35) || dos <= leadTime * 1.6) {
             decisions.push({
               rowIndex: i,
-              choice: '📦 Standard Reorder Needed',
+              choice: 'Standard Reorder Needed',
               confidence: 0.91,
               severity: 'high',
               reasoningSummary: `Approaching reorder threshold (${reorder} units); ${dos}d buffer remaining with ${leadTime}d lead time.`
@@ -129,7 +129,7 @@ export class LayaDecisionEngine {
           } else if (dos > 140) {
             decisions.push({
               rowIndex: i,
-              choice: '⚠️ Overstocked Supply',
+              choice: 'Overstocked Supply',
               confidence: 0.88,
               severity: 'medium',
               reasoningSummary: `Excess safety buffer (${dos} days of supply); on-hand inventory (${stock}) exceeds quarterly demand run-rate.`
@@ -138,7 +138,7 @@ export class LayaDecisionEngine {
           } else {
             decisions.push({
               rowIndex: i,
-              choice: '✅ Healthy Stock Velocity',
+              choice: 'Healthy Stock Velocity',
               confidence: 0.94,
               severity: 'low',
               reasoningSummary: `Balanced stock: ${stock} units on hand matches ${velocity} units/mo demand with safe buffer.`
@@ -155,7 +155,7 @@ export class LayaDecisionEngine {
           if (dos >= 150 || daysDormant >= 120 || (!isNaN(stock) && stock > 100 && velocity < 8)) {
             decisions.push({
               rowIndex: i,
-              choice: '🔥 Dead Stock Liquidation (60% Off)',
+              choice: 'Dead Stock Liquidation (60% Off)',
               confidence: 0.95,
               severity: 'critical',
               reasoningSummary: `Stagnant inventory (${dos} days of supply) with near-zero run-rate; accumulating ${holdingCost}.`
@@ -164,7 +164,7 @@ export class LayaDecisionEngine {
           } else if (dos >= 85 || daysDormant >= 60) {
             decisions.push({
               rowIndex: i,
-              choice: '🏷️ Clearance Markdown (30-40%)',
+              choice: 'Clearance Markdown (30-40%)',
               confidence: 0.90,
               severity: 'high',
               reasoningSummary: `Sluggish turnover (${dos} days of supply); recommend promotional markdown to release working capital.`
@@ -173,7 +173,7 @@ export class LayaDecisionEngine {
           } else if (dos >= 50) {
             decisions.push({
               rowIndex: i,
-              choice: '📦 Promotional Bundle',
+              choice: 'Promotional Bundle',
               confidence: 0.86,
               severity: 'medium',
               reasoningSummary: `Moderate overstock (${dos}d supply); optimal candidate for multi-pack bundling or catalog promo.`
@@ -182,7 +182,7 @@ export class LayaDecisionEngine {
           } else {
             decisions.push({
               rowIndex: i,
-              choice: '💎 Retain Full Margin',
+              choice: 'Retain Full Margin',
               confidence: 0.92,
               severity: 'low',
               reasoningSummary: `Lean inventory turnover (${dos}d supply); high sell-through rate justifies full margin retention.`

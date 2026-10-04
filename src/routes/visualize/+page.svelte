@@ -139,7 +139,7 @@
 						{:else}
 							<TableIcon class="size-3.5 text-emerald-500" />
 						{/if}
-						<span>🌸 Iris Flowers</span>
+						<span>Iris Flowers</span>
 					</button>
 
 					<button
@@ -153,7 +153,7 @@
 						{:else}
 							<TableIcon class="size-3.5 text-sky-500" />
 						{/if}
-						<span>📊 Superstore Sales</span>
+						<span>Superstore Sales</span>
 					</button>
 
 					<button
@@ -167,7 +167,7 @@
 						{:else}
 							<TableIcon class="size-3.5 text-amber-500" />
 						{/if}
-						<span>📈 Tech Stocks</span>
+						<span>Tech Stocks</span>
 					</button>
 				</div>
 
