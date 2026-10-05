@@ -1,12 +1,13 @@
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
+import sitemap from 'vite-plugin-sitemap';
 
 export default defineConfig({
   worker: {
     format: 'es',
   },
-  plugins: [svelte(), tailwindcss()],
+  plugins: [svelte(), tailwindcss(), sitemap({ hostname: 'https://decide.example.com' })],
   clearScreen: false,
   server: {
     port: 5173,
