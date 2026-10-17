@@ -3,7 +3,7 @@
   import { SAMPLE_DATASETS, type SampleDatasetInfo } from '../lib/sample-datasets';
   import { db } from '../lib/db';
 
-  let { onDataParsed } = $props<{ onDataParsed: (result: ParseResult) => void }>();
+  let { onDataParsed }: { onDataParsed: (result: ParseResult) => void } = $props();
 
   let isDragging = $state(false);
   let isParsing = $state(false);
@@ -400,7 +400,7 @@
         <div>
           <!-- Tabbed Domain Selector Pills -->
           <div class="flex flex-wrap gap-2 mb-6">
-            {#each SAMPLE_DATASETS as sample, idx}
+            {#each SAMPLE_DATASETS as _sample, idx}
               {@const isSelected = activePlaybookIndex === idx}
               <button
                 type="button"

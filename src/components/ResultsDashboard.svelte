@@ -7,12 +7,12 @@
   import StressMeter from './StressMeter.svelte';
   import { ArrowLeft } from 'lucide-svelte';
 
-  let { summary, rows, charts, onReset } = $props<{
+  let { summary, rows, charts, onReset }: {
     summary: DatasetSummary;
     rows: Record<string, any>[];
     charts: ChartDefinition[];
     onReset: () => void;
-  }>();
+  } = $props();
 
   // State
   let activePresetId = $state<string>('');

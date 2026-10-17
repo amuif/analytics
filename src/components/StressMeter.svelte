@@ -3,11 +3,11 @@
   import { stressMonitor } from '../lib/stress-monitor';
   import type { StressTelemetry } from '../types';
 
-  let { processedRows = 0, totalRows = 0, renderLatencyMs = 0 } = $props<{
+  let { processedRows = 0, totalRows = 0, renderLatencyMs = 0 }: {
     processedRows?: number;
     totalRows?: number;
     renderLatencyMs?: number;
-  }>();
+  } = $props();
 
   let telemetry = $state<StressTelemetry>(stressMonitor.getTelemetry());
   let intervalId: any = null;

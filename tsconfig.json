@@ -20,5 +20,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Leftover SvelteKit/DuckDB prototype, not imported by the app.
+  "exclude": ["src/routes", "src/lib/components", "src/lib/services", "src/lib/workers"]
 }

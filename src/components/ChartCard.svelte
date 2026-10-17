@@ -6,11 +6,13 @@
   import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
   import { CanvasRenderer } from 'echarts/renderers';
 
-  echarts.use([BarChart, PieChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+  import type { EChartsOption } from 'echarts';
   import type { ChartDefinition } from '../types';
   import { themeManager } from '../lib/theme.svelte';
 
-  let { chart } = $props<{ chart: ChartDefinition }>();
+  echarts.use([BarChart, PieChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+
+  let { chart }: { chart: ChartDefinition } = $props();
 
   let chartContainer: HTMLDivElement;
   let chartInstance: echarts.ECharts | null = null;
@@ -41,10 +43,9 @@
 
   // Watch chart data, theme, and user orientation/legend preferences
   $effect(() => {
-    const _t = themeManager.current;
-    const _bo = barOrientation;
-    const _plp = pieLegendPosition;
-    const _c = chart;
+    void themeManager.current;
+    void barOrientation;
+    void pieLegendPosition;
     if (chart && chartInstance) {
       updateChartOptions();
     }
@@ -66,7 +67,7 @@
     const tooltipBg = isDark ? '#1a1a1a' : '#000000';
     const tooltipBorder = isDark ? '#333333' : '#000000';
 
-    let options: echarts.EChartsOption = {
+    let options: EChartsOption = {
       backgroundColor: 'transparent',
       tooltip: {
         trigger: chart.type === 'pie' ? 'item' : 'axis',
