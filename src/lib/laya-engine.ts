@@ -364,6 +364,7 @@ export class LayaDecisionEngine {
       return all;
     }
 
+    const worker = this.worker;
     return new Promise((resolve) => {
       const accumulatedDecisions: RowDecision[] = [...immediateSlice];
 
@@ -374,10 +375,10 @@ export class LayaDecisionEngine {
           accumulatedDecisions.push(...chunk);
           onChunk?.(chunk, processed, workerTotal);
         } else if (type === 'COMPLETE') {
-          this.worker?.removeEventListener('message', handleMessage);
+          worker.removeEventListener('message', handleMessage);
           resolve(decisions || accumulatedDecisions);
         } else if (type === 'ERROR') {
-          this.worker?.removeEventListener('message', handleMessage);
+          worker.removeEventListener('message', handleMessage);
           console.warn('Laya worker reported error, completing synchronously:', error);
           const fallback = this.evaluateOptimisticSlice(rows, preset, columns, total, 0);
           onChunk?.(fallback, total, total);
@@ -385,7 +386,7 @@ export class LayaDecisionEngine {
         }
       };
 
-      this.worker.addEventListener('message', handleMessage);
+      worker.addEventListener('message', handleMessage);
 
       const request: WorkerMessageRequest = {
         type: 'EVALUATE_BATCH',
@@ -395,7 +396,7 @@ export class LayaDecisionEngine {
         columns,
       };
 
-      this.worker.postMessage(request);
+      worker.postMessage(request);
     });
   }
 

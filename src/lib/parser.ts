@@ -9,7 +9,16 @@ export interface ParseResult {
   charts: ChartDefinition[];
 }
 
+// Files are parsed in memory and copied into IndexedDB, so cap the input size
+// to keep the tab responsive and within browser storage quotas.
+export const MAX_FILE_SIZE_MB = 50;
+
 export async function parseDataFile(file: File): Promise<ParseResult> {
+  if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    throw new Error(`${file.name} is ${sizeMB} MB. The maximum supported file size is ${MAX_FILE_SIZE_MB} MB.`);
+  }
+
   const extension = file.name.split('.').pop()?.toLowerCase() || '';
   let rawRows: Record<string, any>[] = [];
   let sheetNames: string[] = [];
@@ -335,28 +344,4 @@ function generateSmartCharts(columns: ColumnProfile[], rows: Record<string, any>
   }
 
   return charts;
-}
-
-function computeBins(col: ColumnProfile, rows: Record<string, any>[]) {
-  const bins = 8;
-  const min = col.min!;
-  const max = col.max!;
-  const binSize = (max - min) / bins || 1;
-  const binCounts = new Array(bins).fill(0);
-  const binLabels: string[] = [];
-
-  for (let i = 0; i < bins; i++) {
-    const start = min + i * binSize;
-    binLabels.push(`${Math.round(start)}-${Math.round(start + binSize)}`);
-  }
-
-  for (const row of rows) {
-    const val = row[col.name];
-    if (typeof val === 'number') {
-      const idx = Math.min(bins - 1, Math.max(0, Math.floor((val - min) / binSize)));
-      binCounts[idx] += 1;
-    }
-  }
-
-  return binLabels.map((label, idx) => ({ range: label, count: binCounts[idx] }));
 }

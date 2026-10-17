@@ -20,7 +20,6 @@
     "vite": "^8.3.0"
   },
   "dependencies": {
-    "@lucide/svelte": "^1.49.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "dexie": "^4.4.6",
     "echarts": "^6.1.0",
@@ -28,6 +27,6 @@
     "papaparse": "^5.7.0",
     "svelte": "^5.57.1",
     "vite-plugin-sitemap": "^0.8.2",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

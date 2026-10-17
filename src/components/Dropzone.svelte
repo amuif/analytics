@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { parseDataFile, type ParseResult } from '../lib/parser';
+  import { parseDataFile, MAX_FILE_SIZE_MB, type ParseResult } from '../lib/parser';
   import { SAMPLE_DATASETS, type SampleDatasetInfo } from '../lib/sample-datasets';
   import { db } from '../lib/db';
 
@@ -338,6 +338,7 @@
                 <span class="px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-white/[0.05] border border-neutral-200 dark:border-white/10 text-[10px] font-mono text-neutral-600 dark:text-neutral-400">.CSV</span>
                 <span class="px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-white/[0.05] border border-neutral-200 dark:border-white/10 text-[10px] font-mono text-neutral-600 dark:text-neutral-400">.TSV</span>
                 <span class="px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-white/[0.05] border border-neutral-200 dark:border-white/10 text-[10px] font-mono text-neutral-600 dark:text-neutral-400">.XLS</span>
+                <span class="text-[10px] font-mono text-neutral-500 dark:text-neutral-500">up to {MAX_FILE_SIZE_MB} MB</span>
               </div>
 
               <!-- Air-gap guarantee badge -->
