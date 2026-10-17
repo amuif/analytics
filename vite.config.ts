@@ -5,7 +5,7 @@ import sitemap from 'vite-plugin-sitemap';
 
 // Public origin of the deployed site, without a trailing slash. Used for the
 // sitemap, robots.txt, and the canonical/Open Graph tags in index.html.
-const SITE_URL = 'https://decide.example.com';
+const SITE_URL = 'https://decide-analytics.amudiworks.workers.dev';
 
 export default defineConfig({
   worker: {

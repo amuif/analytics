@@ -10,7 +10,6 @@
     "deploy": "cf deploy"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "beta",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.3",
     "@types/papaparse": "^5.5.2",

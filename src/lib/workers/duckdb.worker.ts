@@ -14,4 +14,3 @@ export interface WorkerRPCResponse {
 }
 
 // Dedicated worker module
-console.log('[DuckDB Worker] Worker thread initialized.');
