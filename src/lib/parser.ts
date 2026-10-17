@@ -1,4 +1,3 @@
-import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import type { ColumnProfile, DatasetSummary, ChartDefinition } from '../types';
 import { detectBusinessDomain, BUILTIN_PRESETS } from './domain-detector';
@@ -33,6 +32,8 @@ export async function parseDataFile(file: File): Promise<ParseResult> {
     });
     rawRows = parsed.data as Record<string, any>[];
   } else if (['xlsx', 'xls', 'xlsm', 'xlsb', 'ods'].includes(extension)) {
+    // Loaded on demand: SheetJS is large and only needed for spreadsheet uploads.
+    const XLSX = await import('xlsx');
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
     sheetNames = workbook.SheetNames;

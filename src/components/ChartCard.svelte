@@ -1,6 +1,12 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import * as echarts from 'echarts';
+  // Register only the pieces this card uses so the rest of ECharts is tree-shaken out.
+  import * as echarts from 'echarts/core';
+  import { BarChart, PieChart } from 'echarts/charts';
+  import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+  import { CanvasRenderer } from 'echarts/renderers';
+
+  echarts.use([BarChart, PieChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
   import type { ChartDefinition } from '../types';
   import { themeManager } from '../lib/theme.svelte';
 

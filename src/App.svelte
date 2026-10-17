@@ -1,13 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import Dropzone from './components/Dropzone.svelte';
-  import ResultsDashboard from './components/ResultsDashboard.svelte';
   import Logo from './components/Logo.svelte';
   import { db } from './lib/db';
   import { themeManager } from './lib/theme.svelte';
   import type { DatasetSummary, ChartDefinition } from './types';
   import type { ParseResult } from './lib/parser';
   import { Moon, Sun } from 'lucide-svelte';
+
+  // The dashboard pulls in ECharts, so load it only once there is data to show.
+  const loadDashboard = () => import('./components/ResultsDashboard.svelte');
 
   // State
   let currentSummary = $state<DatasetSummary | null>(null);
@@ -78,12 +80,18 @@
   <!-- Main View Area -->
   <div class="flex-1 flex flex-col">
     {#if currentSummary && currentRows.length > 0}
-      <ResultsDashboard
-        summary={currentSummary}
-        rows={currentRows}
-        charts={currentCharts}
-        onReset={handleReset}
-      />
+      {#await loadDashboard() then { default: ResultsDashboard }}
+        <ResultsDashboard
+          summary={currentSummary}
+          rows={currentRows}
+          charts={currentCharts}
+          onReset={handleReset}
+        />
+      {:catch}
+        <div class="flex-1 flex items-center justify-center text-sm text-neutral-500">
+          Could not load the dashboard. Please refresh the page.
+        </div>
+      {/await}
     {:else}
       <div class="flex-1 flex items-center justify-center">
         <Dropzone onDataParsed={handleDataParsed} />
